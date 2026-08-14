@@ -1,0 +1,16 @@
+# Copyright (C) 2026 WPDINO
+msgid ""
+msgstr ""
+"Project-Id-Version: DinoAI 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wpdino.com/support/\n"
+"POT-Creation-Date: 2026-08-13 00:00+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Domain: dinoai\n"
+
+msgid "DinoAI"
+msgstr ""
+
+msgid "AI Toolkit for WordPress"
+msgstr ""
