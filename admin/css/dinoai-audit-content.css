@@ -1,0 +1,828 @@
+.dinoai-audit-inline-actions {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 12px;
+}
+
+.dinoai-audit-test-status {
+	font-size: 13px;
+}
+
+.dinoai-audit-test-status.is-success {
+	color: #1a8960;
+}
+
+.dinoai-audit-test-status.is-error {
+	color: #b42318;
+}
+
+.dinoai-audit-test-status.is-loading {
+	color: #4d5c56;
+}
+
+.dinoai-audit-panel {
+	display: block;
+}
+
+.dinoai-audit-toolbar {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 20px;
+	margin-bottom: 8px;
+}
+
+.dinoai-audit-toolbar .wpdino-section-title {
+	margin-bottom: 6px;
+}
+
+.dinoai-audit-toolbar .wpdino-section-description {
+	margin: 0;
+	max-width: 42em;
+}
+
+.dinoai-audit-health {
+	--dinoai-audit-good: #1a8960;
+	--dinoai-audit-fair: #b45309;
+	--dinoai-audit-poor: #b42318;
+	--dinoai-audit-ink: #1c2421;
+	--dinoai-audit-muted: #4d5c56;
+	--dinoai-audit-line: #dce8e2;
+	--dinoai-audit-soft: #f3faf7;
+}
+
+.dinoai-audit-score-panel {
+	display: grid;
+	grid-template-columns: minmax(280px, 340px) 1fr;
+	gap: 28px;
+	align-items: center;
+	margin: 8px 0 28px;
+	padding: 28px;
+	background:
+		radial-gradient(circle at top left, rgba(26, 137, 96, 0.08), transparent 42%),
+		linear-gradient(180deg, #ffffff 0%, var(--dinoai-audit-soft) 100%);
+	border: 1px solid var(--dinoai-audit-line);
+	border-radius: 16px;
+	box-shadow: 0 10px 30px rgba(26, 137, 96, 0.08);
+}
+
+.dinoai-audit-score-hero {
+	display: flex;
+	align-items: center;
+	gap: 20px;
+}
+
+.dinoai-audit-score-ring {
+	position: relative;
+	width: 132px;
+	height: 132px;
+	flex-shrink: 0;
+}
+
+.dinoai-audit-score-ring svg {
+	width: 100%;
+	height: 100%;
+	transform: rotate(-90deg);
+}
+
+.dinoai-audit-score-track,
+.dinoai-audit-score-fill {
+	fill: none;
+	stroke-width: 10;
+	stroke-linecap: round;
+}
+
+.dinoai-audit-score-track {
+	stroke: #e4efe9;
+}
+
+.dinoai-audit-score-fill {
+	stroke: var(--dinoai-audit-good);
+	transition: stroke-dashoffset 400ms ease;
+}
+
+.dinoai-audit-health--fair .dinoai-audit-score-fill {
+	stroke: var(--dinoai-audit-fair);
+}
+
+.dinoai-audit-health--poor .dinoai-audit-score-fill {
+	stroke: var(--dinoai-audit-poor);
+}
+
+.dinoai-audit-score-ring-value {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+}
+
+.dinoai-audit-score-ring-value strong {
+	font-size: 32px;
+	line-height: 1;
+	color: var(--dinoai-audit-ink);
+	font-weight: 600;
+}
+
+.dinoai-audit-score-ring-value span {
+	margin-top: 4px;
+	font-size: 12px;
+	color: var(--dinoai-audit-muted);
+}
+
+.dinoai-audit-score-kicker {
+	margin: 0 0 4px;
+	font-size: 12px;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: var(--dinoai-audit-muted);
+	font-weight: 600;
+}
+
+.dinoai-audit-score-label {
+	margin: 0 0 8px;
+	font-size: 22px;
+	line-height: 1.2;
+	color: var(--dinoai-audit-ink);
+}
+
+.dinoai-audit-health--good .dinoai-audit-score-label {
+	color: var(--dinoai-audit-good);
+}
+
+.dinoai-audit-health--fair .dinoai-audit-score-label {
+	color: var(--dinoai-audit-fair);
+}
+
+.dinoai-audit-health--poor .dinoai-audit-score-label {
+	color: var(--dinoai-audit-poor);
+}
+
+.dinoai-audit-issue-count {
+	margin: 0;
+	color: var(--dinoai-audit-muted);
+	font-size: 14px;
+}
+
+.dinoai-audit-score-cats {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 14px 18px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.dinoai-audit-cat-head {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 8px;
+	font-size: 13px;
+	color: var(--dinoai-audit-ink);
+}
+
+.dinoai-audit-cat-head strong {
+	margin-left: auto;
+	font-variant-numeric: tabular-nums;
+}
+
+.dinoai-audit-cat-icon {
+	width: 18px;
+	height: 18px;
+	font-size: 16px;
+	color: var(--dinoai-audit-good);
+}
+
+.dinoai-audit-cat-bar {
+	height: 8px;
+	border-radius: 999px;
+	background: #e4efe9;
+	overflow: hidden;
+}
+
+.dinoai-audit-cat-bar span {
+	display: block;
+	height: 100%;
+	border-radius: inherit;
+	background: var(--dinoai-audit-good);
+	transition: width 300ms ease;
+}
+
+.dinoai-audit-findings-head {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 16px;
+	margin: 0 0 16px;
+}
+
+.dinoai-audit-findings-head h3 {
+	margin: 0;
+	font-size: 18px;
+	color: var(--dinoai-audit-ink);
+}
+
+.dinoai-audit-findings-head p {
+	margin: 0;
+	color: var(--dinoai-audit-muted);
+	font-size: 13px;
+}
+
+.dinoai-audit-tile-icon {
+	width: 40px;
+	height: 40px;
+	display: flex;
+	align-items: center;
+	margin-bottom: 20px;
+	color: #1a8960;
+}
+
+.dinoai-audit-tile-icon .dashicons {
+	width: 34px;
+	height: 34px;
+	font-size: 34px;
+}
+
+.dinoai-audit-finding,
+.dinoai-audit-empty,
+.dinoai-audit-stat,
+.dinoai-audit-usage-meta div,
+.dinoai-audit-module-usage li,
+.dinoai-audit-about-card,
+.dinoai-audit-privacy-card {
+	background: #fff;
+	padding: 25px;
+	box-shadow: 0px 0px 1px 0px rgba(158, 158, 158, 0.5);
+}
+
+.dinoai-audit-issues {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 25px;
+	margin: 0 0 16px;
+}
+
+.dinoai-audit-finding {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+}
+
+.dinoai-audit-finding-icon {
+	color: #1a8960;
+}
+
+.dinoai-audit-finding--error .dinoai-audit-finding-icon {
+	color: var(--dinoai-audit-poor);
+}
+
+.dinoai-audit-finding--warning .dinoai-audit-finding-icon {
+	color: var(--dinoai-audit-fair);
+}
+
+.dinoai-audit-finding-header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 12px;
+	margin-bottom: 8px;
+}
+
+.dinoai-audit-finding-header h4 {
+	margin: 0;
+	font-size: 18px;
+	font-weight: 600;
+	line-height: 1.35;
+	color: #333;
+}
+
+.dinoai-audit-finding-tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	flex-shrink: 0;
+}
+
+.dinoai-audit-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 4px 10px;
+	border-radius: 999px;
+	background: var(--dinoai-audit-soft);
+	color: #0f3d2c;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.02em;
+	line-height: 1.4;
+}
+
+.dinoai-audit-chip .dashicons {
+	width: 14px;
+	height: 14px;
+	font-size: 14px;
+}
+
+.dinoai-audit-chip--error {
+	background: #fef3f2;
+	color: var(--dinoai-audit-poor);
+}
+
+.dinoai-audit-chip--warning {
+	background: #fff7ed;
+	color: var(--dinoai-audit-fair);
+}
+
+.dinoai-audit-chip--notice {
+	background: #eef8f3;
+	color: var(--dinoai-audit-good);
+}
+
+.dinoai-audit-finding-desc {
+	margin: 0 0 12px;
+	color: #666;
+	font-size: 14px;
+	line-height: 1.5;
+}
+
+.dinoai-audit-finding-items-label {
+	margin: 0 0 6px;
+	color: var(--dinoai-audit-muted);
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+}
+
+.dinoai-audit-finding-items {
+	list-style: disc;
+	margin: 0 0 16px 1.15em;
+	padding: 0;
+}
+
+.dinoai-audit-finding-items li {
+	margin: 0 0 4px;
+	padding: 0;
+	color: var(--dinoai-audit-ink);
+	font-size: 13px;
+	line-height: 1.45;
+}
+
+.dinoai-audit-finding-items li:last-child {
+	margin-bottom: 0;
+}
+
+.dinoai-audit-finding-items a {
+	color: #1a8960;
+	text-decoration: none;
+	font-weight: 600;
+}
+
+.dinoai-audit-finding-items a:hover,
+.dinoai-audit-finding-items a:focus {
+	text-decoration: underline;
+}
+
+.dinoai-audit-finding-more {
+	margin: -8px 0 16px 1.15em;
+	color: var(--dinoai-audit-muted);
+	font-size: 12px;
+	line-height: 1.4;
+}
+
+.dinoai-audit-finding-action {
+	display: flex;
+	gap: 10px;
+	padding: 12px 14px;
+	border-radius: 10px;
+	background: var(--dinoai-audit-soft);
+}
+
+.dinoai-audit-finding--error .dinoai-audit-finding-action {
+	background: #fef3f2;
+}
+
+.dinoai-audit-finding--warning .dinoai-audit-finding-action {
+	background: #fff7ed;
+}
+
+.dinoai-audit-finding-action .dashicons {
+	width: 20px;
+	height: 20px;
+	font-size: 20px;
+	margin-top: 1px;
+	color: var(--dinoai-audit-good);
+}
+
+.dinoai-audit-finding--error .dinoai-audit-finding-action .dashicons {
+	color: var(--dinoai-audit-poor);
+}
+
+.dinoai-audit-finding--warning .dinoai-audit-finding-action .dashicons {
+	color: var(--dinoai-audit-fair);
+}
+
+.dinoai-audit-finding-action-label {
+	display: block;
+	margin-bottom: 2px;
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: var(--dinoai-audit-ink);
+}
+
+.dinoai-audit-finding-action p {
+	margin: 0;
+	font-size: 13px;
+	line-height: 1.5;
+	color: var(--dinoai-audit-ink);
+}
+
+.dinoai-audit-finding-action-cta {
+	margin: 8px 0 0;
+}
+
+.dinoai-audit-finding-action-cta a {
+	color: #1a8960;
+	font-size: 13px;
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.dinoai-audit-finding-action-cta a:hover,
+.dinoai-audit-finding-action-cta a:focus {
+	text-decoration: underline;
+}
+
+.dinoai-audit-note {
+	margin: 8px 0 0;
+	padding: 12px 14px;
+	border-radius: 10px;
+	background: #f7f8f7;
+	color: var(--dinoai-audit-muted);
+	font-size: 12px;
+	line-height: 1.5;
+}
+
+.dinoai-audit-empty {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+}
+
+.dinoai-audit-empty h3 {
+	margin: 0 0 10px;
+	color: #333;
+	font-size: 18px;
+	font-weight: 600;
+}
+
+.dinoai-audit-empty p {
+	margin: 0;
+	max-width: 42em;
+	color: #666;
+	line-height: 1.5;
+}
+
+.dinoai-audit-module-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 8px;
+	margin: 0;
+}
+
+.dinoai-audit-module-card {
+	margin: 0 0 8px;
+	background: #fff;
+	box-shadow: 0px 0px 1px 0px rgba(158, 158, 158, 0.5);
+}
+
+.dinoai-audit-module-grid .dinoai-audit-module-card {
+	margin: 0;
+}
+
+.dinoai-audit-module-card label {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 12px;
+	min-height: 44px;
+	padding: 10px 14px;
+	box-sizing: border-box;
+	cursor: pointer;
+	transition: background 160ms ease;
+}
+
+.dinoai-audit-module-card label:hover {
+	background: #f6faf8;
+}
+
+.dinoai-audit-module-card.is-locked label {
+	cursor: not-allowed;
+}
+
+.dinoai-audit-module-card.is-locked label:hover {
+	background: transparent;
+}
+
+.dinoai-audit-module-card .dinoai-audit-tile-icon {
+	width: 28px;
+	height: 28px;
+	margin: 0;
+	flex-shrink: 0;
+	align-items: center;
+	justify-content: center;
+}
+
+.dinoai-audit-module-card .dinoai-audit-tile-icon .dashicons {
+	width: 20px;
+	height: 20px;
+	font-size: 20px;
+}
+
+.dinoai-audit-module-copy {
+	display: block;
+	flex: 1;
+	min-width: 0;
+	margin: 0;
+}
+
+.dinoai-audit-module-title {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 6px;
+	font-weight: 600;
+	color: #1c2421;
+	font-size: 14px;
+	line-height: 1.3;
+	margin: 0 0 2px;
+}
+
+.dinoai-audit-module-desc {
+	display: block;
+	color: #4d5c56;
+	font-size: 13px;
+	line-height: 1.4;
+}
+
+.dinoai-audit-switch {
+	position: relative;
+	width: 44px;
+	height: 24px;
+	flex-shrink: 0;
+	margin: 0 0 0 auto;
+}
+
+.dinoai-audit-switch input {
+	position: absolute;
+	inset: 0;
+	opacity: 0;
+	margin: 0;
+	cursor: pointer;
+}
+
+.dinoai-audit-switch-ui {
+	display: block;
+	width: 44px;
+	height: 24px;
+	border-radius: 999px;
+	background: #d5ddd8;
+	transition: background 180ms ease;
+}
+
+.dinoai-audit-switch-ui::after {
+	content: "";
+	position: absolute;
+	top: 3px;
+	left: 3px;
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	background: #fff;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.16);
+	transition: transform 180ms ease;
+}
+
+.dinoai-audit-switch input:checked + .dinoai-audit-switch-ui {
+	background: #1a8960;
+}
+
+.dinoai-audit-switch input:checked + .dinoai-audit-switch-ui::after {
+	transform: translateX(20px);
+}
+
+.dinoai-audit-switch input:focus-visible + .dinoai-audit-switch-ui {
+	box-shadow: 0 0 0 3px rgba(26, 137, 96, 0.25);
+}
+
+.dinoai-audit-switch input:disabled {
+	cursor: not-allowed;
+}
+
+.dinoai-audit-switch input:disabled + .dinoai-audit-switch-ui {
+	opacity: 0.55;
+}
+
+.dinoai-audit-stat-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 25px;
+	margin-bottom: 25px;
+}
+
+.dinoai-audit-stat-label {
+	display: block;
+	margin-bottom: 10px;
+	font-size: 18px;
+	font-weight: 600;
+	color: #333;
+}
+
+.dinoai-audit-stat-value {
+	font-size: 28px;
+	line-height: 1.1;
+	color: #1c2421;
+}
+
+.dinoai-audit-stat-value--small {
+	font-size: 15px;
+	line-height: 1.35;
+}
+
+.dinoai-audit-usage-meta {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 25px;
+	margin-bottom: 28px;
+}
+
+.dinoai-audit-usage-meta strong {
+	display: block;
+	margin-top: 6px;
+	font-size: 15px;
+	color: #1c2421;
+}
+
+.dinoai-audit-usage-subtitle {
+	margin-top: 8px;
+}
+
+.dinoai-audit-module-usage {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 25px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.dinoai-audit-module-usage li {
+	display: flex;
+	justify-content: space-between;
+	gap: 12px;
+	align-items: center;
+	font-size: 14px;
+}
+
+.dinoai-audit-about-lead {
+	margin: 0 0 20px;
+	max-width: 54ch;
+	font-size: 15px;
+	line-height: 1.6;
+	color: #4d5c56;
+}
+
+.dinoai-audit-about-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 25px;
+	margin-bottom: 20px;
+}
+
+.dinoai-audit-about-card h4 {
+	margin: 0 0 10px;
+	font-size: 18px;
+	font-weight: 600;
+	color: #333;
+}
+
+.dinoai-audit-about-card p {
+	margin: 0;
+	color: #666;
+	font-size: 14px;
+	line-height: 1.5;
+}
+
+.dinoai-audit-about-links a {
+	color: #1a8960;
+	text-decoration: none;
+	font-weight: 600;
+}
+
+.dinoai-audit-about-links a:hover,
+.dinoai-audit-about-links a:focus-visible {
+	text-decoration: underline;
+}
+
+.dinoai-audit-privacy-card {
+	margin-top: 24px;
+}
+
+.dinoai-audit-privacy-card h3 {
+	margin: 0 0 10px;
+	font-size: 18px;
+	font-weight: 600;
+	color: #333;
+}
+
+.dinoai-audit-privacy-card p {
+	margin: 0 0 10px;
+	color: #666;
+	line-height: 1.5;
+}
+
+.dinoai-audit-privacy-card p:last-child {
+	margin-bottom: 0;
+}
+
+.dinoai-audit-classic-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.dinoai-audit-classic-status {
+	margin: 8px 0;
+	font-size: 13px;
+}
+
+.dinoai-audit-classic-status.is-error {
+	color: #b42318;
+}
+
+.dinoai-audit-classic-status.is-success {
+	color: #1a8960;
+}
+
+.dinoai-audit-media-tools {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-top: 8px;
+}
+
+@media (max-width: 1100px) {
+	.dinoai-audit-score-panel,
+	.dinoai-audit-stat-grid,
+	.dinoai-audit-about-grid {
+		grid-template-columns: 1fr;
+	}
+}
+
+@media (max-width: 782px) {
+	.dinoai-audit-toolbar,
+	.dinoai-audit-score-hero,
+	.dinoai-audit-findings-head {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.dinoai-audit-score-cats,
+	.dinoai-audit-usage-meta,
+	.dinoai-audit-module-usage,
+	.dinoai-audit-stat-grid,
+	.dinoai-audit-module-grid,
+	.dinoai-audit-about-grid,
+	.dinoai-audit-issues {
+		grid-template-columns: 1fr;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.dinoai-audit-finding,
+	.dinoai-audit-module-card label,
+	.dinoai-audit-score-fill,
+	.dinoai-audit-cat-bar span,
+	.dinoai-audit-switch-ui,
+	.dinoai-audit-switch-ui::after {
+		transition: none;
+	}
+}
+
+@media (max-width: 600px) {
+	.dinoai-audit-module-card label {
+		align-items: flex-start;
+		padding: 12px;
+	}
+
+	.dinoai-audit-module-card .dinoai-audit-switch {
+		margin-top: 2px;
+	}
+}

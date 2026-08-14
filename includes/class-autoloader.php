@@ -1,11 +1,11 @@
 <?php
 /**
- * PSR-4-style autoloader for DinoAI classes.
+ * PSR-4-style autoloader for DinoAI Audit classes.
  *
- * @package WPDINO\DinoAI
+ * @package WPDINO\DinoAIAudit
  */
 
-namespace WPDINO\DinoAI;
+namespace WPDINO\DinoAIAudit;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -21,7 +21,7 @@ class Autoloader {
 	 *
 	 * @var string
 	 */
-	const PREFIX = 'WPDINO\\DinoAI\\';
+	const PREFIX = 'WPDINO\\DinoAIAudit\\';
 
 	/**
 	 * Registers the autoloader.
@@ -58,7 +58,7 @@ class Autoloader {
 		}
 
 		$sub  = implode( '/', $parts );
-		$path = DINOAI_PATH . 'includes/' . ( $sub ? $sub . '/' : '' ) . $base . '.php';
+		$path = DINOAI_AUDIT_PATH . 'includes/' . ( $sub ? $sub . '/' : '' ) . $base . '.php';
 
 		if ( is_readable( $path ) ) {
 			require_once $path;

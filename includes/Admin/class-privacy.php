@@ -2,14 +2,14 @@
 /**
  * Privacy policy content.
  *
- * @package WPDINO\DinoAI
+ * @package WPDINO\DinoAIAudit
  */
 
-namespace WPDINO\DinoAI\Admin;
+namespace WPDINO\DinoAIAudit\Admin;
 
 defined( 'ABSPATH' ) || exit;
 
-use WPDINO\DinoAI\Loader;
+use WPDINO\DinoAIAudit\Loader;
 
 /**
  * Explains what data is sent to the configured AI provider.
@@ -42,11 +42,11 @@ class Privacy {
 			return;
 		}
 
-		$content  = '<p>' . esc_html__( 'DinoAI sends content you choose (selected text, post content used for SEO suggestions, or images used for alt text) to the AI provider configured in the plugin settings. In the Lite version this is OpenAI when an API key is saved.', 'dinoai' ) . '</p>';
-		$content .= '<p>' . esc_html__( 'Requests are made only when a logged-in user with the required capability starts an action. DinoAI does not send content automatically in the background.', 'dinoai' ) . '</p>';
-		$content .= '<p>' . esc_html__( 'The plugin stores your API key and basic usage counts (request totals, module, model, approximate token usage, and timestamps) on this site. It does not store full prompts or full AI responses.', 'dinoai' ) . '</p>';
-		$content .= '<p>' . esc_html__( 'The AI provider’s own privacy policy and terms apply to data they receive. Review OpenAI’s privacy policy if that provider is used.', 'dinoai' ) . '</p>';
+		$content  = '<p>' . esc_html__( 'DinoAI Audit sends content you choose (selected text, post content used for SEO suggestions, or images used for alt text) to the AI provider configured in the plugin settings. This is OpenAI when an API key is saved.', 'dinoai-audit' ) . '</p>';
+		$content .= '<p>' . esc_html__( 'Requests are made only when a logged-in user with the required capability starts an action. DinoAI Audit does not send content automatically in the background.', 'dinoai-audit' ) . '</p>';
+		$content .= '<p>' . esc_html__( 'The plugin stores your API key and basic usage counts (request totals, module, model, approximate token usage, and timestamps) on this site. It does not store full prompts or full AI responses.', 'dinoai-audit' ) . '</p>';
+		$content .= '<p>' . esc_html__( 'The AI provider’s own privacy policy and terms apply to data they receive. Review OpenAI’s privacy policy if that provider is used.', 'dinoai-audit' ) . '</p>';
 
-		wp_add_privacy_policy_content( 'DinoAI', wp_kses_post( $content ) );
+		wp_add_privacy_policy_content( 'DinoAI Audit', wp_kses_post( $content ) );
 	}
 }

@@ -2,7 +2,7 @@
 /**
  * Silence is golden.
  *
- * @package WPDINO\DinoAI
+ * @package WPDINO\DinoAIAudit
  */
 
 defined( 'ABSPATH' ) || exit;

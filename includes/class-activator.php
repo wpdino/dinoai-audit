@@ -2,10 +2,10 @@
 /**
  * Plugin activation.
  *
- * @package WPDINO\DinoAI
+ * @package WPDINO\DinoAIAudit
  */
 
-namespace WPDINO\DinoAI;
+namespace WPDINO\DinoAIAudit;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -32,8 +32,8 @@ class Activator {
 			add_option( Usage::OPTION_KEY, Usage::defaults(), '', false );
 		}
 
-		update_option( 'dinoai_version', DINOAI_VERSION, false );
+		update_option( 'dinoai_audit_version', DINOAI_AUDIT_VERSION, false );
 
-		set_transient( 'dinoai_activation_redirect', 1, 30 );
+		set_transient( 'dinoai_audit_activation_redirect', 1, 30 );
 	}
 }

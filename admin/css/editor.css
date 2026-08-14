@@ -1,59 +1,59 @@
-.dinoai-sidebar {
+.dinoai-audit-sidebar {
 	padding: 0 16px 16px;
 }
 
-.dinoai-sidebar .components-panel__body {
+.dinoai-audit-sidebar .components-panel__body {
 	border-top: 1px solid #dcdcde;
 }
 
-.dinoai-result {
+.dinoai-audit-result {
 	margin-top: 12px;
 }
 
-.dinoai-result textarea {
+.dinoai-audit-result textarea {
 	width: 100%;
 	min-height: 120px;
 }
 
-.dinoai-result-actions,
-.dinoai-action-row {
+.dinoai-audit-result-actions,
+.dinoai-audit-action-row {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 8px;
 	margin-top: 8px;
 }
 
-.dinoai-status {
+.dinoai-audit-status {
 	margin: 8px 0 0;
 	font-size: 13px;
 }
 
-.dinoai-status.is-error {
+.dinoai-audit-status.is-error {
 	color: #b32d2e;
 }
 
-.dinoai-status.is-success {
+.dinoai-audit-status.is-success {
 	color: #1a8960;
 }
 
-.dinoai-empty-state {
+.dinoai-audit-empty-state {
 	margin: 8px 0 0;
 	color: #646970;
 }
 
-.dinoai-suggestions {
+.dinoai-audit-suggestions {
 	margin: 8px 0 0;
 	padding-left: 1.2em;
 }
 
-.dinoai-keyword-list {
+.dinoai-audit-keyword-list {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 6px;
 	margin: 8px 0 0;
 }
 
-.dinoai-keyword {
+.dinoai-audit-keyword {
 	background: #e8f5ef;
 	border-radius: 999px;
 	padding: 2px 10px;

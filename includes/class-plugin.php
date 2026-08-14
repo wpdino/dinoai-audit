@@ -2,15 +2,15 @@
 /**
  * Main plugin class.
  *
- * @package WPDINO\DinoAI
+ * @package WPDINO\DinoAIAudit
  */
 
-namespace WPDINO\DinoAI;
+namespace WPDINO\DinoAIAudit;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Boots DinoAI and wires modules together.
+ * Boots DinoAI Audit and wires modules together.
  *
  * @since 1.0.0
  */
@@ -126,8 +126,8 @@ class Plugin {
 
 		$this->loader->run();
 
-		do_action( 'dinoai_loaded', $this );
-		do_action( 'dinoai_modules_loaded', $this->modules );
+		do_action( 'dinoai_audit_loaded', $this );
+		do_action( 'dinoai_audit_modules_loaded', $this->modules );
 	}
 
 	/**
@@ -139,9 +139,9 @@ class Plugin {
 	 */
 	public function load_textdomain() {
 		load_plugin_textdomain(
-			'dinoai',
+			'dinoai-audit',
 			false,
-			dirname( DINOAI_BASENAME ) . '/languages'
+			dirname( DINOAI_AUDIT_BASENAME ) . '/languages'
 		);
 	}
 
@@ -167,7 +167,7 @@ class Plugin {
 		 *
 		 * @param array<string, class-string> $classes Module key => class name.
 		 */
-		$classes = apply_filters( 'dinoai_modules', $classes );
+		$classes = apply_filters( 'dinoai_audit_modules', $classes );
 
 		foreach ( $classes as $key => $class_name ) {
 			if ( ! $this->settings->is_module_enabled( $key ) ) {

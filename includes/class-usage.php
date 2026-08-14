@@ -2,10 +2,10 @@
 /**
  * Local usage tracking.
  *
- * @package WPDINO\DinoAI
+ * @package WPDINO\DinoAIAudit
  */
 
-namespace WPDINO\DinoAI;
+namespace WPDINO\DinoAIAudit;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -21,7 +21,7 @@ class Usage {
 	 *
 	 * @var string
 	 */
-	const OPTION_KEY = 'dinoai_usage';
+	const OPTION_KEY = 'dinoai_audit_usage';
 
 	/**
 	 * Default usage payload.

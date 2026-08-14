@@ -2,10 +2,10 @@
 /**
  * OpenAI provider.
  *
- * @package WPDINO\DinoAI
+ * @package WPDINO\DinoAIAudit
  */
 
-namespace WPDINO\DinoAI\AI;
+namespace WPDINO\DinoAIAudit\AI;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -61,7 +61,7 @@ class OpenAI_Provider implements Provider_Interface {
 	 * {@inheritdoc}
 	 */
 	public function get_label() {
-		return __( 'OpenAI', 'dinoai' );
+		return __( 'OpenAI', 'dinoai-audit' );
 	}
 
 	/**
@@ -85,7 +85,7 @@ class OpenAI_Provider implements Provider_Interface {
 		 * @param string[] $vision_models Model ids.
 		 * @param string   $model         Current model.
 		 */
-		$vision_models = apply_filters( 'dinoai_openai_vision_models', $vision_models, $this->model );
+		$vision_models = apply_filters( 'dinoai_audit_openai_vision_models', $vision_models, $this->model );
 
 		return in_array( $this->model, $vision_models, true );
 	}
@@ -152,8 +152,8 @@ class OpenAI_Provider implements Provider_Interface {
 	public function analyze_image( $prompt, $image_ref, array $options = array() ) {
 		if ( ! $this->supports_vision() ) {
 			return new \WP_Error(
-				'dinoai_no_vision',
-				__( 'The selected AI model cannot analyze images. Choose a vision-capable model such as gpt-4o-mini in DinoAI settings.', 'dinoai' )
+				'dinoai_audit_no_vision',
+				__( 'The selected AI model cannot analyze images. Choose a vision-capable model such as gpt-4o-mini in DinoAI Audit settings.', 'dinoai-audit' )
 			);
 		}
 
@@ -206,8 +206,8 @@ class OpenAI_Provider implements Provider_Interface {
 	protected function request( array $messages, array $options = array() ) {
 		if ( '' === $this->api_key ) {
 			return new \WP_Error(
-				'dinoai_not_configured',
-				__( 'No AI provider configured. Connect an AI provider in DinoAI → Settings.', 'dinoai' )
+				'dinoai_audit_not_configured',
+				__( 'No AI provider configured. Connect an AI provider in DinoAI Audit → Settings.', 'dinoai-audit' )
 			);
 		}
 
@@ -251,8 +251,8 @@ class OpenAI_Provider implements Provider_Interface {
 
 		if ( ! is_array( $data ) ) {
 			return new \WP_Error(
-				'dinoai_invalid_response',
-				__( 'DinoAI could not complete the request. Please check your AI provider settings and try again.', 'dinoai' )
+				'dinoai_audit_invalid_response',
+				__( 'DinoAI Audit could not complete the request. Please check your AI provider settings and try again.', 'dinoai-audit' )
 			);
 		}
 
@@ -264,8 +264,8 @@ class OpenAI_Provider implements Provider_Interface {
 
 		if ( '' === $text ) {
 			return new \WP_Error(
-				'dinoai_empty_response',
-				__( 'DinoAI could not complete the request. The AI returned an empty response.', 'dinoai' )
+				'dinoai_audit_empty_response',
+				__( 'DinoAI Audit could not complete the request. The AI returned an empty response.', 'dinoai-audit' )
 			);
 		}
 
@@ -306,15 +306,15 @@ class OpenAI_Provider implements Provider_Interface {
 
 			if ( is_string( $message ) && false !== stripos( $message, 'timed out' ) ) {
 				return new \WP_Error(
-					'dinoai_timeout',
-					__( 'The AI request timed out. Please try again.', 'dinoai' )
+					'dinoai_audit_timeout',
+					__( 'The AI request timed out. Please try again.', 'dinoai-audit' )
 				);
 			}
 		}
 
 		return new \WP_Error(
-			'dinoai_connection',
-			__( 'DinoAI could not reach the AI provider. Please check your connection and try again.', 'dinoai' )
+			'dinoai_audit_connection',
+			__( 'DinoAI Audit could not reach the AI provider. Please check your connection and try again.', 'dinoai-audit' )
 		);
 	}
 
@@ -330,22 +330,22 @@ class OpenAI_Provider implements Provider_Interface {
 	protected function http_error( $status, array $data ) {
 		if ( 401 === $status ) {
 			return new \WP_Error(
-				'dinoai_invalid_key',
-				__( 'The AI API key appears to be invalid. Please check DinoAI → Settings.', 'dinoai' )
+				'dinoai_audit_invalid_key',
+				__( 'The AI API key appears to be invalid. Please check DinoAI Audit → Settings.', 'dinoai-audit' )
 			);
 		}
 
 		if ( 429 === $status ) {
 			return new \WP_Error(
-				'dinoai_rate_limited',
-				__( 'The AI provider rate-limited this request. Please wait a moment and try again.', 'dinoai' )
+				'dinoai_audit_rate_limited',
+				__( 'The AI provider rate-limited this request. Please wait a moment and try again.', 'dinoai-audit' )
 			);
 		}
 
 		if ( 404 === $status ) {
 			return new \WP_Error(
-				'dinoai_unavailable_model',
-				__( 'The selected AI model is unavailable. Choose a different model in DinoAI settings.', 'dinoai' )
+				'dinoai_audit_unavailable_model',
+				__( 'The selected AI model is unavailable. Choose a different model in DinoAI Audit settings.', 'dinoai-audit' )
 			);
 		}
 
@@ -357,14 +357,14 @@ class OpenAI_Provider implements Provider_Interface {
 
 		if ( 'insufficient_quota' === $type ) {
 			return new \WP_Error(
-				'dinoai_quota',
-				__( 'The AI provider reported insufficient quota. Please check your OpenAI account.', 'dinoai' )
+				'dinoai_audit_quota',
+				__( 'The AI provider reported insufficient quota. Please check your OpenAI account.', 'dinoai-audit' )
 			);
 		}
 
 		return new \WP_Error(
-			'dinoai_provider_error',
-			__( 'DinoAI could not complete the request. Please check your AI provider settings and try again.', 'dinoai' )
+			'dinoai_audit_provider_error',
+			__( 'DinoAI Audit could not complete the request. Please check your AI provider settings and try again.', 'dinoai-audit' )
 		);
 	}
 
@@ -387,8 +387,8 @@ class OpenAI_Provider implements Provider_Interface {
 
 		if ( JSON_ERROR_NONE !== json_last_error() || ! is_array( $decoded ) ) {
 			return new \WP_Error(
-				'dinoai_invalid_json',
-				__( 'DinoAI received an unexpected response. Please try again.', 'dinoai' )
+				'dinoai_audit_invalid_json',
+				__( 'DinoAI Audit received an unexpected response. Please try again.', 'dinoai-audit' )
 			);
 		}
 

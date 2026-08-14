@@ -2,15 +2,15 @@
 /**
  * Image alt text module.
  *
- * @package WPDINO\DinoAI
+ * @package WPDINO\DinoAIAudit
  */
 
-namespace WPDINO\DinoAI\Modules;
+namespace WPDINO\DinoAIAudit\Modules;
 
 defined( 'ABSPATH' ) || exit;
 
-use WPDINO\DinoAI\Loader;
-use WPDINO\DinoAI\Plugin;
+use WPDINO\DinoAIAudit\Loader;
+use WPDINO\DinoAIAudit\Plugin;
 
 /**
  * Generates accessibility-focused alt text.
@@ -69,23 +69,23 @@ class Images {
 		}
 
 		wp_enqueue_script(
-			'dinoai-media',
-			DINOAI_URL . 'admin/js/media.js',
+			'dinoai-audit-media',
+			DINOAI_AUDIT_URL . 'admin/js/media.js',
 			array( 'jquery', 'media-views', 'wp-i18n', 'wp-api-fetch' ),
-			DINOAI_VERSION,
+			DINOAI_AUDIT_VERSION,
 			true
 		);
 
-		wp_set_script_translations( 'dinoai-media', 'dinoai', DINOAI_PATH . 'languages' );
+		wp_set_script_translations( 'dinoai-audit-media', 'dinoai-audit', DINOAI_AUDIT_PATH . 'languages' );
 
 		wp_add_inline_script(
-			'dinoai-media',
-			'window.dinoaiMedia = ' . wp_json_encode(
+			'dinoai-audit-media',
+			'window.dinoaiAuditMedia = ' . wp_json_encode(
 				array(
 					'configured'     => $this->plugin->settings()->is_configured(),
 					'supportsVision' => $this->plugin->ai()->supports_vision(),
-					'settingsUrl'    => admin_url( 'admin.php?page=dinoai-settings' ),
-					'restUrl'        => rest_url( 'dinoai/v1/' ),
+					'settingsUrl'    => admin_url( 'admin.php?page=dinoai-audit-settings' ),
+					'restUrl'        => rest_url( 'dinoai-audit/v1/' ),
 				)
 			) . ';',
 			'before'
@@ -105,22 +105,22 @@ class Images {
 
 		if ( ! $post instanceof \WP_Post || 'attachment' !== $post->post_type ) {
 			return new \WP_Error(
-				'dinoai_invalid_attachment',
-				__( 'The selected file is not a valid image.', 'dinoai' )
+				'dinoai_audit_invalid_attachment',
+				__( 'The selected file is not a valid image.', 'dinoai-audit' )
 			);
 		}
 
 		if ( 0 !== strpos( (string) $post->post_mime_type, 'image/' ) ) {
 			return new \WP_Error(
-				'dinoai_invalid_attachment',
-				__( 'The selected file is not a valid image.', 'dinoai' )
+				'dinoai_audit_invalid_attachment',
+				__( 'The selected file is not a valid image.', 'dinoai-audit' )
 			);
 		}
 
 		if ( ! $this->plugin->ai()->supports_vision() ) {
 			return new \WP_Error(
-				'dinoai_no_vision',
-				__( 'The selected AI model cannot analyze images. Choose a vision-capable model such as gpt-4o-mini in DinoAI settings.', 'dinoai' )
+				'dinoai_audit_no_vision',
+				__( 'The selected AI model cannot analyze images. Choose a vision-capable model such as gpt-4o-mini in DinoAI Audit settings.', 'dinoai-audit' )
 			);
 		}
 
@@ -134,7 +134,7 @@ class Images {
 		$context = array(
 			'input' => $caption ? sprintf(
 				/* translators: %s: image caption */
-				__( 'Image caption: %s', 'dinoai' ),
+				__( 'Image caption: %s', 'dinoai-audit' ),
 				$caption
 			) : '',
 		);
@@ -196,8 +196,8 @@ class Images {
 
 		if ( ! $url ) {
 			return new \WP_Error(
-				'dinoai_missing_image',
-				__( 'DinoAI could not read this image.', 'dinoai' )
+				'dinoai_audit_missing_image',
+				__( 'DinoAI Audit could not read this image.', 'dinoai-audit' )
 			);
 		}
 

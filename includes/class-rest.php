@@ -2,15 +2,15 @@
 /**
  * REST API.
  *
- * @package WPDINO\DinoAI
+ * @package WPDINO\DinoAIAudit
  */
 
-namespace WPDINO\DinoAI;
+namespace WPDINO\DinoAIAudit;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Registers /dinoai/v1/ routes.
+ * Registers /dinoai-audit/v1/ routes.
  *
  * @since 1.0.0
  */
@@ -21,7 +21,7 @@ class REST {
 	 *
 	 * @var string
 	 */
-	const NAMESPACE = 'dinoai/v1';
+	const NAMESPACE = 'dinoai-audit/v1';
 
 	/**
 	 * Plugin instance.
@@ -175,8 +175,8 @@ class REST {
 
 		if ( ! in_array( $prompt_key, $this->plugin->prompts()->keys(), true ) ) {
 			return $this->error(
-				'dinoai_unknown_prompt',
-				__( 'DinoAI could not complete the request.', 'dinoai' ),
+				'dinoai_audit_unknown_prompt',
+				__( 'DinoAI Audit could not complete the request.', 'dinoai-audit' ),
 				400
 			);
 		}
@@ -191,8 +191,8 @@ class REST {
 
 		if ( '' === trim( wp_strip_all_tags( $input ) ) ) {
 			return $this->error(
-				'dinoai_empty_input',
-				__( 'Select or provide some content first.', 'dinoai' ),
+				'dinoai_audit_empty_input',
+				__( 'Select or provide some content first.', 'dinoai-audit' ),
 				400
 			);
 		}
@@ -227,8 +227,8 @@ class REST {
 
 		if ( ! $images instanceof Modules\Images ) {
 			return $this->error(
-				'dinoai_module_disabled',
-				__( 'The image module is disabled.', 'dinoai' ),
+				'dinoai_audit_module_disabled',
+				__( 'The image module is disabled.', 'dinoai-audit' ),
 				400
 			);
 		}
@@ -261,8 +261,8 @@ class REST {
 
 		if ( 'attachment' !== get_post_type( $attachment_id ) ) {
 			return $this->error(
-				'dinoai_invalid_attachment',
-				__( 'The selected file is not a valid image.', 'dinoai' ),
+				'dinoai_audit_invalid_attachment',
+				__( 'The selected file is not a valid image.', 'dinoai-audit' ),
 				400
 			);
 		}
@@ -291,15 +291,19 @@ class REST {
 
 		if ( ! $audit instanceof Modules\Site_Audit ) {
 			return $this->error(
-				'dinoai_module_disabled',
-				__( 'The audit module is disabled.', 'dinoai' ),
+				'dinoai_audit_module_disabled',
+				__( 'The audit module is disabled.', 'dinoai-audit' ),
 				400
 			);
 		}
 
 		$result = $audit->run();
 
-		update_option( 'dinoai_last_audit', $result, false );
+		update_option( 'dinoai_audit_last_audit', $result, false );
+
+		if ( isset( $result['issues'] ) && is_array( $result['issues'] ) ) {
+			$result['issues'] = $audit->prepare_issues( $result['issues'] );
+		}
 
 		return rest_ensure_response( $result );
 	}
@@ -332,7 +336,7 @@ class REST {
 		return rest_ensure_response(
 			array(
 				'success' => true,
-				'message' => __( 'Connection successful.', 'dinoai' ),
+				'message' => __( 'Connection successful.', 'dinoai-audit' ),
 			)
 		);
 	}
@@ -347,21 +351,21 @@ class REST {
 	 */
 	public function can_generate( \WP_REST_Request $request ) {
 		if ( ! is_user_logged_in() ) {
-			return $this->error( 'dinoai_unauthenticated', __( 'You must be logged in to use DinoAI.', 'dinoai' ), 401 );
+			return $this->error( 'dinoai_audit_unauthenticated', __( 'You must be logged in to use DinoAI Audit.', 'dinoai-audit' ), 401 );
 		}
 
 		$post_id = (int) $request->get_param( 'post_id' );
 
 		if ( $post_id ) {
 			if ( ! current_user_can( 'edit_post', $post_id ) ) {
-				return $this->error( 'dinoai_forbidden', __( 'You do not have permission to use DinoAI on this content.', 'dinoai' ), 403 );
+				return $this->error( 'dinoai_audit_forbidden', __( 'You do not have permission to use DinoAI Audit on this content.', 'dinoai-audit' ), 403 );
 			}
 
 			return true;
 		}
 
 		if ( ! current_user_can( 'edit_posts' ) ) {
-			return $this->error( 'dinoai_forbidden', __( 'You do not have permission to use DinoAI.', 'dinoai' ), 403 );
+			return $this->error( 'dinoai_audit_forbidden', __( 'You do not have permission to use DinoAI Audit.', 'dinoai-audit' ), 403 );
 		}
 
 		return true;
@@ -377,17 +381,17 @@ class REST {
 	 */
 	public function can_edit_attachment( \WP_REST_Request $request ) {
 		if ( ! is_user_logged_in() ) {
-			return $this->error( 'dinoai_unauthenticated', __( 'You must be logged in to use DinoAI.', 'dinoai' ), 401 );
+			return $this->error( 'dinoai_audit_unauthenticated', __( 'You must be logged in to use DinoAI Audit.', 'dinoai-audit' ), 401 );
 		}
 
 		$attachment_id = (int) $request->get_param( 'attachment_id' );
 
 		if ( ! $attachment_id || ! current_user_can( 'edit_post', $attachment_id ) ) {
-			return $this->error( 'dinoai_forbidden', __( 'You do not have permission to edit this image.', 'dinoai' ), 403 );
+			return $this->error( 'dinoai_audit_forbidden', __( 'You do not have permission to edit this image.', 'dinoai-audit' ), 403 );
 		}
 
 		if ( ! current_user_can( 'upload_files' ) ) {
-			return $this->error( 'dinoai_forbidden', __( 'You do not have permission to edit this image.', 'dinoai' ), 403 );
+			return $this->error( 'dinoai_audit_forbidden', __( 'You do not have permission to edit this image.', 'dinoai-audit' ), 403 );
 		}
 
 		return true;
@@ -402,11 +406,11 @@ class REST {
 	 */
 	public function can_manage() {
 		if ( ! is_user_logged_in() ) {
-			return $this->error( 'dinoai_unauthenticated', __( 'You must be logged in to use DinoAI.', 'dinoai' ), 401 );
+			return $this->error( 'dinoai_audit_unauthenticated', __( 'You must be logged in to use DinoAI Audit.', 'dinoai-audit' ), 401 );
 		}
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			return $this->error( 'dinoai_forbidden', __( 'You do not have permission to manage DinoAI.', 'dinoai' ), 403 );
+			return $this->error( 'dinoai_audit_forbidden', __( 'You do not have permission to manage DinoAI Audit.', 'dinoai-audit' ), 403 );
 		}
 
 		return true;
@@ -498,11 +502,11 @@ class REST {
 		$code   = $error->get_error_code();
 		$status = 400;
 
-		if ( in_array( $code, array( 'dinoai_unauthenticated' ), true ) ) {
+		if ( in_array( $code, array( 'dinoai_audit_unauthenticated' ), true ) ) {
 			$status = 401;
-		} elseif ( in_array( $code, array( 'dinoai_forbidden' ), true ) ) {
+		} elseif ( in_array( $code, array( 'dinoai_audit_forbidden' ), true ) ) {
 			$status = 403;
-		} elseif ( in_array( $code, array( 'dinoai_timeout', 'dinoai_connection', 'dinoai_provider_error', 'dinoai_rate_limited' ), true ) ) {
+		} elseif ( in_array( $code, array( 'dinoai_audit_timeout', 'dinoai_audit_connection', 'dinoai_audit_provider_error', 'dinoai_audit_rate_limited' ), true ) ) {
 			$status = 502;
 		}
 

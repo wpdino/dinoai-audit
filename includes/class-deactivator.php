@@ -2,10 +2,10 @@
 /**
  * Plugin deactivation.
  *
- * @package WPDINO\DinoAI
+ * @package WPDINO\DinoAIAudit
  */
 
-namespace WPDINO\DinoAI;
+namespace WPDINO\DinoAIAudit;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -24,6 +24,6 @@ class Deactivator {
 	 * @return void
 	 */
 	public static function deactivate() {
-		delete_transient( 'dinoai_activation_redirect' );
+		delete_transient( 'dinoai_audit_activation_redirect' );
 	}
 }

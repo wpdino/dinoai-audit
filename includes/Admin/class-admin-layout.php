@@ -2,15 +2,15 @@
 /**
  * Shared WPDINO admin layout helpers.
  *
- * @package WPDINO\DinoAI
+ * @package WPDINO\DinoAIAudit
  */
 
-namespace WPDINO\DinoAI\Admin;
+namespace WPDINO\DinoAIAudit\Admin;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Builds settings-page URLs and chrome used across DinoAI admin screens.
+ * Builds settings-page URLs and chrome used across DinoAI Audit admin screens.
  *
  * @since 1.0.0
  */
@@ -29,7 +29,7 @@ class Admin_Layout {
 		$params = array(
 			'utm_source'   => 'plugin',
 			'utm_medium'   => 'settings_page',
-			'utm_campaign' => 'dinoai_free',
+			'utm_campaign' => 'dinoai_audit_free',
 		);
 
 		if ( '' !== $content ) {
@@ -68,10 +68,10 @@ class Admin_Layout {
 	 */
 	public static function category_label( $category ) {
 		$labels = array(
-			'seo'           => __( 'SEO', 'dinoai' ),
-			'content'       => __( 'Content', 'dinoai' ),
-			'accessibility' => __( 'Accessibility', 'dinoai' ),
-			'technical'     => __( 'Technical', 'dinoai' ),
+			'seo'           => __( 'SEO', 'dinoai-audit' ),
+			'content'       => __( 'Content', 'dinoai-audit' ),
+			'accessibility' => __( 'Accessibility', 'dinoai-audit' ),
+			'technical'     => __( 'Technical', 'dinoai-audit' ),
 		);
 
 		return isset( $labels[ $category ] ) ? $labels[ $category ] : ucfirst( $category );
@@ -87,9 +87,9 @@ class Admin_Layout {
 	 */
 	public static function severity_label( $severity ) {
 		$labels = array(
-			'error'   => __( 'Error', 'dinoai' ),
-			'warning' => __( 'Warning', 'dinoai' ),
-			'notice'  => __( 'Notice', 'dinoai' ),
+			'error'   => __( 'Error', 'dinoai-audit' ),
+			'warning' => __( 'Warning', 'dinoai-audit' ),
+			'notice'  => __( 'Notice', 'dinoai-audit' ),
 		);
 
 		return isset( $labels[ $severity ] ) ? $labels[ $severity ] : ucfirst( $severity );
@@ -109,20 +109,20 @@ class Admin_Layout {
 		if ( $score >= 80 ) {
 			return array(
 				'slug'  => 'good',
-				'label' => __( 'Looking good', 'dinoai' ),
+				'label' => __( 'Looking good', 'dinoai-audit' ),
 			);
 		}
 
 		if ( $score >= 60 ) {
 			return array(
 				'slug'  => 'fair',
-				'label' => __( 'Room to improve', 'dinoai' ),
+				'label' => __( 'Room to improve', 'dinoai-audit' ),
 			);
 		}
 
 		return array(
 			'slug'  => 'poor',
-			'label' => __( 'Needs attention', 'dinoai' ),
+			'label' => __( 'Needs attention', 'dinoai-audit' ),
 		);
 	}
 

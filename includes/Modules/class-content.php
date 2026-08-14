@@ -2,15 +2,15 @@
 /**
  * Content module.
  *
- * @package WPDINO\DinoAI
+ * @package WPDINO\DinoAIAudit
  */
 
-namespace WPDINO\DinoAI\Modules;
+namespace WPDINO\DinoAIAudit\Modules;
 
 defined( 'ABSPATH' ) || exit;
 
-use WPDINO\DinoAI\Loader;
-use WPDINO\DinoAI\Plugin;
+use WPDINO\DinoAIAudit\Loader;
+use WPDINO\DinoAIAudit\Plugin;
 
 /**
  * AI content actions for the editor.
@@ -68,8 +68,8 @@ class Content {
 		}
 
 		add_meta_box(
-			'dinoai-content',
-			__( 'DinoAI', 'dinoai' ),
+			'dinoai-audit-content',
+			__( 'DinoAI Audit', 'dinoai-audit' ),
 			array( $this, 'render_classic_metabox' ),
 			null,
 			'side',
@@ -87,7 +87,7 @@ class Content {
 	 */
 	public function render_classic_metabox( $post ) {
 		unset( $post );
-		include DINOAI_PATH . 'admin/views/classic-metabox.php';
+		include DINOAI_AUDIT_PATH . 'admin/views/classic-metabox.php';
 	}
 
 	/**
@@ -99,11 +99,11 @@ class Content {
 	 */
 	public static function actions() {
 		return array(
-			'content.improve'   => __( 'Improve', 'dinoai' ),
-			'content.rewrite'   => __( 'Rewrite', 'dinoai' ),
-			'content.shorten'   => __( 'Shorten', 'dinoai' ),
-			'content.expand'    => __( 'Expand', 'dinoai' ),
-			'content.summarize' => __( 'Summarize', 'dinoai' ),
+			'content.improve'   => __( 'Improve', 'dinoai-audit' ),
+			'content.rewrite'   => __( 'Rewrite', 'dinoai-audit' ),
+			'content.shorten'   => __( 'Shorten', 'dinoai-audit' ),
+			'content.expand'    => __( 'Expand', 'dinoai-audit' ),
+			'content.summarize' => __( 'Summarize', 'dinoai-audit' ),
 		);
 	}
 }

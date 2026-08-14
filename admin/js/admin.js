@@ -2,7 +2,7 @@
 	'use strict';
 
 	function getConfig() {
-		return window.dinoaiAdmin || {};
+		return window.dinoaiAuditAdmin || {};
 	}
 
 	function setStatus($el, message, type) {
@@ -18,7 +18,7 @@
 			return wp.apiFetch(
 				$.extend(
 					{
-						path: '/dinoai/v1' + path
+						path: '/dinoai-audit/v1' + path
 					},
 					options || {}
 				)
@@ -41,8 +41,8 @@
 			return error.message;
 		}
 		return (window.wp && wp.i18n)
-			? wp.i18n.__('DinoAI could not complete the request. Please check your AI provider settings and try again.', 'dinoai')
-			: 'DinoAI could not complete the request. Please check your AI provider settings and try again.';
+			? wp.i18n.__('DinoAI Audit could not complete the request. Please check your AI provider settings and try again.', 'dinoai-audit')
+			: 'DinoAI Audit could not complete the request. Please check your AI provider settings and try again.';
 	}
 
 	function activateTab(tabName) {
@@ -271,19 +271,19 @@
 		initNotices();
 		keepActiveTabOnSave();
 
-		var $test = $('#dinoai-test-connection');
-		var $testStatus = $('#dinoai-test-status');
+		var $test = $('#dinoai-audit-test-connection');
+		var $testStatus = $('#dinoai-audit-test-status');
 
 		$test.on('click', function () {
 			var $button = $(this);
 			$button.prop('disabled', true);
-			setStatus($testStatus, (wp.i18n ? wp.i18n.__('Testing…', 'dinoai') : 'Testing…'), 'loading');
+			setStatus($testStatus, (wp.i18n ? wp.i18n.__('Testing…', 'dinoai-audit') : 'Testing…'), 'loading');
 
 			apiFetch('/test-connection', { method: 'POST', data: {} })
 				.then(function (response) {
 					setStatus(
 						$testStatus,
-						(response && response.message) || (wp.i18n ? wp.i18n.__('Connection successful.', 'dinoai') : 'Connection successful.'),
+						(response && response.message) || (wp.i18n ? wp.i18n.__('Connection successful.', 'dinoai-audit') : 'Connection successful.'),
 						'success'
 					);
 				})
@@ -295,14 +295,22 @@
 				});
 		});
 
-		var $audit = $('#dinoai-run-audit');
+		var $audit = $('#dinoai-audit-run-audit');
 		var $auditStatus = $('#dinoai-audit-status');
 		var $results = $('#dinoai-audit-results');
+
+		function auditCopy() {
+			return getConfig().audit || {};
+		}
 
 		$audit.on('click', function () {
 			var $button = $(this);
 			$button.prop('disabled', true);
-			setStatus($auditStatus, (wp.i18n ? wp.i18n.__('Running basic audit…', 'dinoai') : 'Running basic audit…'), 'loading');
+			setStatus(
+				$auditStatus,
+				auditCopy().running || (wp.i18n ? wp.i18n.__('Running basic audit…', 'dinoai-audit') : 'Running basic audit…'),
+				'loading'
+			);
 
 			apiFetch('/audit', { method: 'GET' })
 				.then(function (data) {
@@ -333,22 +341,22 @@
 
 		function categoryLabel(category) {
 			var map = {
-				seo: wp.i18n ? wp.i18n.__('SEO', 'dinoai') : 'SEO',
-				content: wp.i18n ? wp.i18n.__('Content', 'dinoai') : 'Content',
-				accessibility: wp.i18n ? wp.i18n.__('Accessibility', 'dinoai') : 'Accessibility',
-				technical: wp.i18n ? wp.i18n.__('Technical', 'dinoai') : 'Technical'
+				seo: wp.i18n ? wp.i18n.__('SEO', 'dinoai-audit') : 'SEO',
+				content: wp.i18n ? wp.i18n.__('Content', 'dinoai-audit') : 'Content',
+				accessibility: wp.i18n ? wp.i18n.__('Accessibility', 'dinoai-audit') : 'Accessibility',
+				technical: wp.i18n ? wp.i18n.__('Technical', 'dinoai-audit') : 'Technical'
 			};
 			return map[category] || category;
 		}
 
 		function severityLabel(severity) {
 			if (severity === 'error') {
-				return wp.i18n ? wp.i18n.__('Error', 'dinoai') : 'Error';
+				return wp.i18n ? wp.i18n.__('Error', 'dinoai-audit') : 'Error';
 			}
 			if (severity === 'warning') {
-				return wp.i18n ? wp.i18n.__('Warning', 'dinoai') : 'Warning';
+				return wp.i18n ? wp.i18n.__('Warning', 'dinoai-audit') : 'Warning';
 			}
-			return wp.i18n ? wp.i18n.__('Notice', 'dinoai') : 'Notice';
+			return wp.i18n ? wp.i18n.__('Notice', 'dinoai-audit') : 'Notice';
 		}
 
 		function severityIcon(severity) {
@@ -363,21 +371,75 @@
 
 		function scoreBand(score) {
 			if (score >= 80) {
-				return { slug: 'good', label: wp.i18n ? wp.i18n.__('Looking good', 'dinoai') : 'Looking good' };
+				return { slug: 'good', label: wp.i18n ? wp.i18n.__('Looking good', 'dinoai-audit') : 'Looking good' };
 			}
 			if (score >= 60) {
-				return { slug: 'fair', label: wp.i18n ? wp.i18n.__('Room to improve', 'dinoai') : 'Room to improve' };
+				return { slug: 'fair', label: wp.i18n ? wp.i18n.__('Room to improve', 'dinoai-audit') : 'Room to improve' };
 			}
-			return { slug: 'poor', label: wp.i18n ? wp.i18n.__('Needs attention', 'dinoai') : 'Needs attention' };
+			return { slug: 'poor', label: wp.i18n ? wp.i18n.__('Needs attention', 'dinoai-audit') : 'Needs attention' };
+		}
+
+		function renderFindingItems(issue) {
+			var items = issue && Array.isArray(issue.items) ? issue.items : [];
+
+			if (!items.length) {
+				return '';
+			}
+
+			var html = '<p class="dinoai-audit-finding-items-label">' + escapeHtml(wp.i18n ? wp.i18n.__('Affected content', 'dinoai-audit') : 'Affected content') + '</p>';
+			html += '<ul class="dinoai-audit-finding-items">';
+
+			$.each(items, function (_, item) {
+				var title = item && item.title ? item.title : '';
+				var url = item && item.edit_url ? item.edit_url : '';
+
+				html += '<li>';
+				if (url) {
+					html += '<a href="' + escapeHtml(url) + '">' + escapeHtml(title) + '</a>';
+				} else {
+					html += escapeHtml(title);
+				}
+				html += '</li>';
+			});
+
+			html += '</ul>';
+
+			var total = typeof issue.count !== 'undefined' ? parseInt(issue.count, 10) : items.length;
+			var remaining = total - items.length;
+
+			if (remaining > 0) {
+				var moreLabel = wp.i18n
+					? wp.i18n.sprintf(
+						wp.i18n._n('and %d more', 'and %d more', remaining, 'dinoai-audit'),
+						remaining
+					)
+					: 'and ' + remaining + ' more';
+				html += '<p class="dinoai-audit-finding-more">' + escapeHtml(moreLabel) + '</p>';
+			}
+
+			return html;
+		}
+
+		function renderFindingSolution(issue) {
+			var html = '<div class="dinoai-audit-finding-action"><span class="dashicons dashicons-lightbulb" aria-hidden="true"></span><div>';
+			html += '<span class="dinoai-audit-finding-action-label">' + escapeHtml(wp.i18n ? wp.i18n.__('Solution', 'dinoai-audit') : 'Solution') + '</span>';
+			html += '<p>' + escapeHtml(issue.recommendation || '') + '</p>';
+
+			if (issue.action_url && issue.action_label) {
+				html += '<p class="dinoai-audit-finding-action-cta"><a href="' + escapeHtml(issue.action_url) + '">' + escapeHtml(issue.action_label) + '</a></p>';
+			}
+
+			html += '</div></div></div></article>';
+			return html;
 		}
 
 		function renderAudit(data) {
 			if (!data || typeof data.score === 'undefined') {
 				$results.html(
-					'<div class="dinoai-empty">' +
-					'<span class="dinoai-tile-icon" aria-hidden="true"><span class="dashicons dashicons-chart-bar"></span></span>' +
-					'<h3>' + escapeHtml(wp.i18n ? wp.i18n.__('No audit yet', 'dinoai') : 'No audit yet') + '</h3>' +
-					'<p>' + escapeHtml(wp.i18n ? wp.i18n.__('Run a basic audit to see your site score, category breakdown, and recommended next steps.', 'dinoai') : 'Run a basic audit to see your site score, category breakdown, and recommended next steps.') + '</p>' +
+					'<div class="dinoai-audit-empty">' +
+					'<span class="dinoai-audit-tile-icon" aria-hidden="true"><span class="dashicons dashicons-chart-bar"></span></span>' +
+					'<h3>' + escapeHtml(wp.i18n ? wp.i18n.__('No audit yet', 'dinoai-audit') : 'No audit yet') + '</h3>' +
+					'<p>' + escapeHtml(auditCopy().empty || (wp.i18n ? wp.i18n.__('Run a basic audit to see your site score, category breakdown, and recommended next steps.', 'dinoai-audit') : 'Run a basic audit to see your site score, category breakdown, and recommended next steps.')) + '</p>' +
 					'</div>'
 				);
 				return;
@@ -391,7 +453,7 @@
 			var issueCount = typeof data.count !== 'undefined' ? parseInt(data.count, 10) : (data.issues || []).length;
 			var countLabel = wp.i18n
 				? wp.i18n.sprintf(
-					wp.i18n._n('%d finding to review', '%d findings to review', issueCount, 'dinoai'),
+					wp.i18n._n('%d finding to review', '%d findings to review', issueCount, 'dinoai-audit'),
 					issueCount
 				)
 				: issueCount + ' findings to review';
@@ -399,11 +461,11 @@
 			var cats = '';
 			$.each(data.categories || {}, function (key, value) {
 				var catValue = parseInt(value, 10) || 0;
-				cats += '<li><div class="dinoai-cat-head">';
-				cats += '<span class="dinoai-cat-icon dashicons ' + categoryIcon(key) + '" aria-hidden="true"></span>';
+				cats += '<li><div class="dinoai-audit-cat-head">';
+				cats += '<span class="dinoai-audit-cat-icon dashicons ' + categoryIcon(key) + '" aria-hidden="true"></span>';
 				cats += '<span>' + escapeHtml(categoryLabel(key)) + '</span>';
 				cats += '<strong>' + catValue + '</strong></div>';
-				cats += '<div class="dinoai-cat-bar" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + catValue + '" aria-label="' + escapeHtml(categoryLabel(key)) + '">';
+				cats += '<div class="dinoai-audit-cat-bar" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + catValue + '" aria-label="' + escapeHtml(categoryLabel(key)) + '">';
 				cats += '<span style="width:' + catValue + '%;"></span></div></li>';
 			});
 
@@ -418,38 +480,37 @@
 			$.each(sorted, function (_, issue) {
 				var severity = issue.severity || 'notice';
 				var category = issue.category || '';
-				issues += '<article class="dinoai-finding dinoai-finding--' + escapeHtml(severity) + '">';
-				issues += '<div class="dinoai-tile-icon dinoai-finding-icon" aria-hidden="true"><span class="dashicons ' + categoryIcon(category) + '"></span></div>';
-				issues += '<div class="dinoai-finding-body"><header class="dinoai-finding-header">';
+				issues += '<article class="dinoai-audit-finding dinoai-audit-finding--' + escapeHtml(severity) + '">';
+				issues += '<div class="dinoai-audit-tile-icon dinoai-audit-finding-icon" aria-hidden="true"><span class="dashicons ' + categoryIcon(category) + '"></span></div>';
+				issues += '<div class="dinoai-audit-finding-body"><header class="dinoai-audit-finding-header">';
 				issues += '<h4>' + escapeHtml(issue.title) + '</h4>';
-				issues += '<div class="dinoai-finding-tags">';
-				issues += '<span class="dinoai-chip">' + escapeHtml(categoryLabel(category)) + '</span>';
-				issues += '<span class="dinoai-chip dinoai-chip--' + escapeHtml(severity) + '">';
+				issues += '<div class="dinoai-audit-finding-tags">';
+				issues += '<span class="dinoai-audit-chip">' + escapeHtml(categoryLabel(category)) + '</span>';
+				issues += '<span class="dinoai-audit-chip dinoai-audit-chip--' + escapeHtml(severity) + '">';
 				issues += '<span class="dashicons ' + severityIcon(severity) + '" aria-hidden="true"></span> ';
 				issues += escapeHtml(severityLabel(severity)) + '</span></div></header>';
-				issues += '<p class="dinoai-finding-desc">' + escapeHtml(issue.description) + '</p>';
-				issues += '<div class="dinoai-finding-action"><span class="dashicons dashicons-lightbulb" aria-hidden="true"></span><div>';
-				issues += '<span class="dinoai-finding-action-label">' + escapeHtml(wp.i18n ? wp.i18n.__('Next step', 'dinoai') : 'Next step') + '</span>';
-				issues += '<p>' + escapeHtml(issue.recommendation) + '</p></div></div></div></article>';
+				issues += '<p class="dinoai-audit-finding-desc">' + escapeHtml(issue.description) + '</p>';
+				issues += renderFindingItems(issue);
+				issues += renderFindingSolution(issue);
 			});
 
-			var html = '<div class="dinoai-health dinoai-health--' + band.slug + '">';
-			html += '<div class="dinoai-score-panel"><div class="dinoai-score-hero">';
-			html += '<div class="dinoai-score-ring" role="img" aria-label="' + escapeHtml((wp.i18n ? wp.i18n.sprintf(wp.i18n.__('Site score %d of 100', 'dinoai'), score) : 'Site score ' + score + ' of 100')) + '">';
+			var html = '<div class="dinoai-audit-health dinoai-audit-health--' + band.slug + '">';
+			html += '<div class="dinoai-audit-score-panel"><div class="dinoai-audit-score-hero">';
+			html += '<div class="dinoai-audit-score-ring" role="img" aria-label="' + escapeHtml((wp.i18n ? wp.i18n.sprintf(wp.i18n.__('Site score %d of 100', 'dinoai-audit'), score) : 'Site score ' + score + ' of 100')) + '">';
 			html += '<svg viewBox="0 0 120 120" aria-hidden="true" focusable="false">';
-			html += '<circle class="dinoai-score-track" cx="60" cy="60" r="' + radius + '"></circle>';
-			html += '<circle class="dinoai-score-fill" cx="60" cy="60" r="' + radius + '" stroke-dasharray="' + circumference.toFixed(2) + '" stroke-dashoffset="' + offset.toFixed(2) + '"></circle>';
-			html += '</svg><div class="dinoai-score-ring-value"><strong>' + score + '</strong><span>/ 100</span></div></div>';
-			html += '<div class="dinoai-score-copy"><p class="dinoai-score-kicker">' + escapeHtml(wp.i18n ? wp.i18n.__('DinoAI Site Score', 'dinoai') : 'DinoAI Site Score') + '</p>';
-			html += '<h3 class="dinoai-score-label">' + escapeHtml(band.label) + '</h3>';
-			html += '<p class="dinoai-issue-count">' + escapeHtml(countLabel) + '</p></div></div>';
-			html += '<ul class="dinoai-score-cats">' + cats + '</ul></div>';
+			html += '<circle class="dinoai-audit-score-track" cx="60" cy="60" r="' + radius + '"></circle>';
+			html += '<circle class="dinoai-audit-score-fill" cx="60" cy="60" r="' + radius + '" stroke-dasharray="' + circumference.toFixed(2) + '" stroke-dashoffset="' + offset.toFixed(2) + '"></circle>';
+			html += '</svg><div class="dinoai-audit-score-ring-value"><strong>' + score + '</strong><span>/ 100</span></div></div>';
+			html += '<div class="dinoai-audit-score-copy"><p class="dinoai-audit-score-kicker">' + escapeHtml(wp.i18n ? wp.i18n.__('DinoAI Audit Site Score', 'dinoai-audit') : 'DinoAI Audit Site Score') + '</p>';
+			html += '<h3 class="dinoai-audit-score-label">' + escapeHtml(band.label) + '</h3>';
+			html += '<p class="dinoai-audit-issue-count">' + escapeHtml(countLabel) + '</p></div></div>';
+			html += '<ul class="dinoai-audit-score-cats">' + cats + '</ul></div>';
 
 			if (issues) {
-				html += '<div class="dinoai-findings"><div class="dinoai-findings-head">';
-				html += '<h3>' + escapeHtml(wp.i18n ? wp.i18n.__('Findings', 'dinoai') : 'Findings') + '</h3>';
-				html += '<p>' + escapeHtml(wp.i18n ? wp.i18n.__('Each item includes a next step. Nothing is changed until you act.', 'dinoai') : 'Each item includes a next step. Nothing is changed until you act.') + '</p></div>';
-				html += '<div class="dinoai-issues">' + issues + '</div></div>';
+				html += '<div class="dinoai-audit-findings"><div class="dinoai-audit-findings-head">';
+				html += '<h3>' + escapeHtml(wp.i18n ? wp.i18n.__('Findings', 'dinoai-audit') : 'Findings') + '</h3>';
+				html += '<p>' + escapeHtml(wp.i18n ? wp.i18n.__('Each item includes a solution. Nothing is changed until you act.', 'dinoai-audit') : 'Each item includes a solution. Nothing is changed until you act.') + '</p></div>';
+				html += '<div class="dinoai-audit-issues">' + issues + '</div></div>';
 			}
 
 			if (data.disclaimer) {

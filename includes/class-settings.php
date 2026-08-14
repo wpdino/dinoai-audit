@@ -2,10 +2,10 @@
 /**
  * Plugin settings.
  *
- * @package WPDINO\DinoAI
+ * @package WPDINO\DinoAIAudit
  */
 
-namespace WPDINO\DinoAI;
+namespace WPDINO\DinoAIAudit;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -21,7 +21,7 @@ class Settings {
 	 *
 	 * @var string
 	 */
-	const OPTION_KEY = 'dinoai_settings';
+	const OPTION_KEY = 'dinoai_audit_settings';
 
 	/**
 	 * Placeholder used when the stored key should be kept.
@@ -51,7 +51,7 @@ class Settings {
 	 */
 	public function register_setting() {
 		register_setting(
-			'dinoai_settings_group',
+			'dinoai_audit_settings_group',
 			self::OPTION_KEY,
 			array(
 				'type'              => 'array',

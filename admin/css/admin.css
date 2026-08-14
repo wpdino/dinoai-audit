@@ -1703,20 +1703,20 @@
 	}
 }
 
-.toplevel_page_dinoai .notice,
-.dinoai_page_dinoai-settings .notice,
-.dinoai_page_dinoai-about .notice,
-.toplevel_page_dinoai div.error,
-.dinoai_page_dinoai-settings div.error,
-.dinoai_page_dinoai-about div.error,
-.toplevel_page_dinoai .updated,
-.dinoai_page_dinoai-settings .updated,
-.dinoai_page_dinoai-about .updated {
+.toplevel_page_dinoai-audit .notice,
+.dinoai-audit_page_dinoai-audit-settings .notice,
+.dinoai-audit_page_dinoai-audit-about .notice,
+.toplevel_page_dinoai-audit div.error,
+.dinoai-audit_page_dinoai-audit-settings div.error,
+.dinoai-audit_page_dinoai-audit-about div.error,
+.toplevel_page_dinoai-audit .updated,
+.dinoai-audit_page_dinoai-audit-settings .updated,
+.dinoai-audit_page_dinoai-audit-about .updated {
 	margin: 5px 0 15px !important;
 	margin-right: 20px !important;
 }
 
-.dinoai_page_dinoai-settings #setting-error-settings_updated {
+.dinoai-audit_page_dinoai-audit-settings #setting-error-settings_updated {
 	display: none !important;
 }
 

@@ -2,18 +2,19 @@
 /**
  * Admin menu.
  *
- * @package WPDINO\DinoAI
+ * @package WPDINO\DinoAIAudit
  */
 
-namespace WPDINO\DinoAI\Admin;
+namespace WPDINO\DinoAIAudit\Admin;
 
 defined( 'ABSPATH' ) || exit;
 
-use WPDINO\DinoAI\Loader;
-use WPDINO\DinoAI\Plugin;
+use WPDINO\DinoAIAudit\Loader;
+use WPDINO\DinoAIAudit\Modules\Site_Audit;
+use WPDINO\DinoAIAudit\Plugin;
 
 /**
- * Registers the DinoAI admin pages.
+ * Registers the DinoAI Audit admin pages.
  *
  * @since 1.0.0
  */
@@ -61,50 +62,51 @@ class Admin_Menu {
 		$icon       = $this->menu_icon();
 
 		add_menu_page(
-			__( 'DinoAI', 'dinoai' ),
-			__( 'DinoAI', 'dinoai' ),
+			__( 'DinoAI Audit', 'dinoai-audit' ),
+			__( 'DinoAI Audit', 'dinoai-audit' ),
 			$capability,
-			'dinoai',
+			'dinoai-audit',
 			array( $this, 'render_audit' ),
 			$icon,
 			58
 		);
 
 		add_submenu_page(
-			'dinoai',
-			__( 'Site Audit', 'dinoai' ),
-			__( 'Site Audit', 'dinoai' ),
+			'dinoai-audit',
+			__( 'Site Audit', 'dinoai-audit' ),
+			__( 'Site Audit', 'dinoai-audit' ),
 			$capability,
-			'dinoai',
+			'dinoai-audit',
 			array( $this, 'render_audit' )
 		);
 
 		add_submenu_page(
-			'dinoai',
-			__( 'DinoAI Settings', 'dinoai' ),
-			__( 'Settings', 'dinoai' ),
+			'dinoai-audit',
+			__( 'DinoAI Audit Settings', 'dinoai-audit' ),
+			__( 'Settings', 'dinoai-audit' ),
 			$capability,
-			'dinoai-settings',
+			'dinoai-audit-settings',
 			array( $this, 'render_settings' )
 		);
 
-		add_submenu_page(
-			'dinoai',
-			__( 'About DinoAI', 'dinoai' ),
-			__( 'About', 'dinoai' ),
-			$capability,
-			'dinoai-about',
-			array( $this, 'render_about' )
-		);
-
 		/**
-		 * Fires after DinoAI registers its admin pages.
+		 * Fires after the main DinoAI Audit admin pages are registered.
+		 * About is added after this hook so it stays last.
 		 *
 		 * @since 1.0.0
 		 *
 		 * @param string $capability Required capability.
 		 */
-		do_action( 'dinoai_admin_menu', $capability );
+		do_action( 'dinoai_audit_admin_menu', $capability );
+
+		add_submenu_page(
+			'dinoai-audit',
+			__( 'About DinoAI Audit', 'dinoai-audit' ),
+			__( 'About', 'dinoai-audit' ),
+			$capability,
+			'dinoai-audit-about',
+			array( $this, 'render_about' )
+		);
 	}
 
 	/**
@@ -116,20 +118,20 @@ class Admin_Menu {
 	 */
 	public function render_settings() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have permission to manage DinoAI.', 'dinoai' ) );
+			wp_die( esc_html__( 'You do not have permission to manage DinoAI Audit.', 'dinoai-audit' ) );
 		}
 
 		$settings = $this->plugin->settings();
 		$usage    = $this->plugin->usage()->get();
 		$tab      = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'general'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only tab switch.
 
-		$allowed_tabs = apply_filters( 'dinoai_settings_allowed_tabs', array( 'general', 'provider', 'usage', 'about' ) );
+		$allowed_tabs = apply_filters( 'dinoai_audit_settings_allowed_tabs', array( 'general', 'provider', 'usage', 'about' ) );
 
 		if ( ! in_array( $tab, $allowed_tabs, true ) ) {
 			$tab = 'general';
 		}
 
-		include DINOAI_PATH . 'admin/views/settings.php';
+		include DINOAI_AUDIT_PATH . 'admin/views/settings.php';
 	}
 
 	/**
@@ -141,16 +143,24 @@ class Admin_Menu {
 	 */
 	public function render_audit() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have permission to manage DinoAI.', 'dinoai' ) );
+			wp_die( esc_html__( 'You do not have permission to manage DinoAI Audit.', 'dinoai-audit' ) );
 		}
 
-		$last = get_option( 'dinoai_last_audit', array() );
+		$last = get_option( 'dinoai_audit_last_audit', array() );
 
 		if ( ! is_array( $last ) ) {
 			$last = array();
 		}
 
-		include DINOAI_PATH . 'admin/views/audit.php';
+		if ( ! empty( $last['issues'] ) && is_array( $last['issues'] ) ) {
+			$audit = $this->plugin->module( 'audit' );
+
+			if ( $audit instanceof Site_Audit ) {
+				$last['issues'] = $audit->prepare_issues( $last['issues'] );
+			}
+		}
+
+		include DINOAI_AUDIT_PATH . 'admin/views/audit.php';
 	}
 
 	/**
@@ -162,10 +172,10 @@ class Admin_Menu {
 	 */
 	public function render_about() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have permission to manage DinoAI.', 'dinoai' ) );
+			wp_die( esc_html__( 'You do not have permission to manage DinoAI Audit.', 'dinoai-audit' ) );
 		}
 
-		include DINOAI_PATH . 'admin/views/about.php';
+		include DINOAI_AUDIT_PATH . 'admin/views/about.php';
 	}
 
 	/**

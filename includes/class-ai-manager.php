@@ -2,10 +2,10 @@
 /**
  * AI manager.
  *
- * @package WPDINO\DinoAI
+ * @package WPDINO\DinoAIAudit
  */
 
-namespace WPDINO\DinoAI;
+namespace WPDINO\DinoAIAudit;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -53,7 +53,7 @@ class AI_Manager {
 	}
 
 	/**
-	 * Available providers. OpenAI is the only Lite provider.
+	 * Available providers. OpenAI is the only bundled provider.
 	 *
 	 * @since 1.0.0
 	 *
@@ -61,7 +61,7 @@ class AI_Manager {
 	 */
 	public static function available_providers() {
 		$providers = array(
-			'openai' => __( 'OpenAI', 'dinoai' ),
+			'openai' => __( 'OpenAI', 'dinoai-audit' ),
 		);
 
 		/**
@@ -71,7 +71,7 @@ class AI_Manager {
 		 *
 		 * @param array<string, string> $providers Slug => label.
 		 */
-		return apply_filters( 'dinoai_ai_providers', $providers );
+		return apply_filters( 'dinoai_audit_ai_providers', $providers );
 	}
 
 	/**
@@ -98,7 +98,7 @@ class AI_Manager {
 		 * @param string[] $models   Model ids.
 		 * @param string   $provider Provider slug.
 		 */
-		$models = apply_filters( 'dinoai_allowed_models', $models, $provider );
+		$models = apply_filters( 'dinoai_audit_allowed_models', $models, $provider );
 
 		return array_values( array_filter( $models, 'is_string' ) );
 	}
@@ -113,10 +113,10 @@ class AI_Manager {
 	 */
 	public static function model_label( $model ) {
 		$labels = array(
-			'gpt-4o-mini'  => __( 'GPT-4o mini (Recommended)', 'dinoai' ),
-			'gpt-4o'       => __( 'GPT-4o', 'dinoai' ),
-			'gpt-4.1-mini' => __( 'GPT-4.1 mini', 'dinoai' ),
-			'gpt-4.1'      => __( 'GPT-4.1', 'dinoai' ),
+			'gpt-4o-mini'  => __( 'GPT-4o mini (Recommended)', 'dinoai-audit' ),
+			'gpt-4o'       => __( 'GPT-4o', 'dinoai-audit' ),
+			'gpt-4.1-mini' => __( 'GPT-4.1 mini', 'dinoai-audit' ),
+			'gpt-4.1'      => __( 'GPT-4.1', 'dinoai-audit' ),
 		);
 
 		$label = isset( $labels[ $model ] ) ? $labels[ $model ] : $model;
@@ -129,7 +129,7 @@ class AI_Manager {
 		 * @param string $label Display label.
 		 * @param string $model Model id.
 		 */
-		return apply_filters( 'dinoai_model_label', $label, $model );
+		return apply_filters( 'dinoai_audit_model_label', $label, $model );
 	}
 
 	/**
@@ -170,8 +170,8 @@ class AI_Manager {
 	public function get_provider() {
 		if ( ! $this->is_configured() ) {
 			return new \WP_Error(
-				'dinoai_not_configured',
-				__( 'No AI provider configured. Connect an AI provider in DinoAI → Settings.', 'dinoai' )
+				'dinoai_audit_not_configured',
+				__( 'No AI provider configured. Connect an AI provider in DinoAI Audit → Settings.', 'dinoai-audit' )
 			);
 		}
 
@@ -190,12 +190,12 @@ class AI_Manager {
 		 *
 		 * @param array<string, class-string> $providers Slug => class.
 		 */
-		$providers = apply_filters( 'dinoai_ai_provider_classes', $providers );
+		$providers = apply_filters( 'dinoai_audit_ai_provider_classes', $providers );
 
 		if ( ! isset( $providers[ $slug ] ) || ! class_exists( $providers[ $slug ] ) ) {
 			return new \WP_Error(
-				'dinoai_unknown_provider',
-				__( 'The selected AI provider is not available.', 'dinoai' )
+				'dinoai_audit_unknown_provider',
+				__( 'The selected AI provider is not available.', 'dinoai-audit' )
 			);
 		}
 
@@ -276,8 +276,8 @@ class AI_Manager {
 
 		if ( ! $provider->supports_vision() ) {
 			return new \WP_Error(
-				'dinoai_no_vision',
-				__( 'The selected AI model cannot analyze images. Choose a vision-capable model such as gpt-4o-mini in DinoAI settings.', 'dinoai' )
+				'dinoai_audit_no_vision',
+				__( 'The selected AI model cannot analyze images. Choose a vision-capable model such as gpt-4o-mini in DinoAI Audit settings.', 'dinoai-audit' )
 			);
 		}
 
@@ -297,8 +297,8 @@ class AI_Manager {
 
 		if ( '' === $result['text'] ) {
 			return new \WP_Error(
-				'dinoai_empty_response',
-				__( 'DinoAI could not complete the request. The AI returned an empty response.', 'dinoai' )
+				'dinoai_audit_empty_response',
+				__( 'DinoAI Audit could not complete the request. The AI returned an empty response.', 'dinoai-audit' )
 			);
 		}
 
@@ -357,7 +357,7 @@ class AI_Manager {
 		switch ( $prompt_key ) {
 			case 'seo.title':
 				if ( empty( $data['title'] ) || ! is_string( $data['title'] ) ) {
-					return new \WP_Error( 'dinoai_invalid_json', __( 'DinoAI received an unexpected response. Please try again.', 'dinoai' ) );
+					return new \WP_Error( 'dinoai_audit_invalid_json', __( 'DinoAI Audit received an unexpected response. Please try again.', 'dinoai-audit' ) );
 				}
 
 				return array(
@@ -366,7 +366,7 @@ class AI_Manager {
 
 			case 'seo.meta_description':
 				if ( empty( $data['meta_description'] ) || ! is_string( $data['meta_description'] ) ) {
-					return new \WP_Error( 'dinoai_invalid_json', __( 'DinoAI received an unexpected response. Please try again.', 'dinoai' ) );
+					return new \WP_Error( 'dinoai_audit_invalid_json', __( 'DinoAI Audit received an unexpected response. Please try again.', 'dinoai-audit' ) );
 				}
 
 				return array(
@@ -375,7 +375,7 @@ class AI_Manager {
 
 			case 'seo.keywords':
 				if ( empty( $data['keywords'] ) || ! is_array( $data['keywords'] ) ) {
-					return new \WP_Error( 'dinoai_invalid_json', __( 'DinoAI received an unexpected response. Please try again.', 'dinoai' ) );
+					return new \WP_Error( 'dinoai_audit_invalid_json', __( 'DinoAI Audit received an unexpected response. Please try again.', 'dinoai-audit' ) );
 				}
 
 				$keywords = array();
@@ -397,14 +397,14 @@ class AI_Manager {
 				}
 
 				if ( empty( $keywords ) ) {
-					return new \WP_Error( 'dinoai_invalid_json', __( 'DinoAI received an unexpected response. Please try again.', 'dinoai' ) );
+					return new \WP_Error( 'dinoai_audit_invalid_json', __( 'DinoAI Audit received an unexpected response. Please try again.', 'dinoai-audit' ) );
 				}
 
 				return array( 'keywords' => $keywords );
 
 			case 'seo.analyze':
 				if ( empty( $data['suggestions'] ) || ! is_array( $data['suggestions'] ) ) {
-					return new \WP_Error( 'dinoai_invalid_json', __( 'DinoAI received an unexpected response. Please try again.', 'dinoai' ) );
+					return new \WP_Error( 'dinoai_audit_invalid_json', __( 'DinoAI Audit received an unexpected response. Please try again.', 'dinoai-audit' ) );
 				}
 
 				$suggestions = array();
@@ -431,7 +431,7 @@ class AI_Manager {
 				}
 
 				if ( empty( $suggestions ) ) {
-					return new \WP_Error( 'dinoai_invalid_json', __( 'DinoAI received an unexpected response. Please try again.', 'dinoai' ) );
+					return new \WP_Error( 'dinoai_audit_invalid_json', __( 'DinoAI Audit received an unexpected response. Please try again.', 'dinoai-audit' ) );
 				}
 
 				return array( 'suggestions' => $suggestions );
@@ -445,7 +445,7 @@ class AI_Manager {
 		 * @param array<string, mixed>|\WP_Error $data       Validated data.
 		 * @param string                         $prompt_key Prompt identifier.
 		 */
-		return apply_filters( 'dinoai_validate_structured', $data, $prompt_key );
+		return apply_filters( 'dinoai_audit_validate_structured', $data, $prompt_key );
 	}
 
 	/**
@@ -461,8 +461,8 @@ class AI_Manager {
 		if ( $this->prompts->is_structured( $prompt_key ) ) {
 			if ( empty( $result['structured'] ) || ! is_array( $result['structured'] ) ) {
 				return new \WP_Error(
-					'dinoai_invalid_json',
-					__( 'DinoAI received an unexpected response. Please try again.', 'dinoai' )
+					'dinoai_audit_invalid_json',
+					__( 'DinoAI Audit received an unexpected response. Please try again.', 'dinoai-audit' )
 				);
 			}
 

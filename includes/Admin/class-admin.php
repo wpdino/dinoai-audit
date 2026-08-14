@@ -2,15 +2,16 @@
 /**
  * Admin assets and helpers.
  *
- * @package WPDINO\DinoAI
+ * @package WPDINO\DinoAIAudit
  */
 
-namespace WPDINO\DinoAI\Admin;
+namespace WPDINO\DinoAIAudit\Admin;
 
 defined( 'ABSPATH' ) || exit;
 
-use WPDINO\DinoAI\Loader;
-use WPDINO\DinoAI\Plugin;
+use WPDINO\DinoAIAudit\Loader;
+use WPDINO\DinoAIAudit\Plugin;
+use WPDINO\DinoAIAudit\Modules\Site_Audit;
 
 /**
  * Enqueues admin and editor assets.
@@ -48,11 +49,11 @@ class Admin {
 	public function register( Loader $loader ) {
 		$loader->add_action( 'admin_enqueue_scripts', $this, 'enqueue_admin' );
 		$loader->add_action( 'enqueue_block_editor_assets', $this, 'enqueue_editor' );
-		$loader->add_filter( 'plugin_action_links_' . DINOAI_BASENAME, $this, 'action_links' );
+		$loader->add_filter( 'plugin_action_links_' . DINOAI_AUDIT_BASENAME, $this, 'action_links' );
 	}
 
 	/**
-	 * Enqueues assets on DinoAI admin screens and classic editor.
+	 * Enqueues assets on DinoAI Audit admin screens and classic editor.
 	 *
 	 * @since 1.0.0
 	 *
@@ -60,68 +61,68 @@ class Admin {
 	 * @return void
 	 */
 	public function enqueue_admin( $hook ) {
-		$dinoai_page = ( false !== strpos( $hook, 'dinoai' ) );
+		$dinoai_audit_page = ( false !== strpos( $hook, 'dinoai-audit' ) );
 
-		if ( $dinoai_page ) {
+		if ( $dinoai_audit_page ) {
 			wp_enqueue_style(
-				'dinoai-admin',
-				DINOAI_URL . 'admin/css/admin.css',
+				'dinoai-audit-admin',
+				DINOAI_AUDIT_URL . 'admin/css/admin.css',
 				array( 'dashicons' ),
-				DINOAI_VERSION
+				DINOAI_AUDIT_VERSION
 			);
 
 			wp_enqueue_style(
-				'dinoai-admin-content',
-				DINOAI_URL . 'admin/css/dinoai-content.css',
-				array( 'dinoai-admin' ),
-				DINOAI_VERSION
+				'dinoai-audit-admin-content',
+				DINOAI_AUDIT_URL . 'admin/css/dinoai-audit-content.css',
+				array( 'dinoai-audit-admin' ),
+				DINOAI_AUDIT_VERSION
 			);
 
 			wp_enqueue_script(
-				'dinoai-admin',
-				DINOAI_URL . 'admin/js/admin.js',
+				'dinoai-audit-admin',
+				DINOAI_AUDIT_URL . 'admin/js/admin.js',
 				array( 'jquery', 'wp-i18n', 'wp-api-fetch' ),
-				DINOAI_VERSION,
+				DINOAI_AUDIT_VERSION,
 				true
 			);
 
-			wp_set_script_translations( 'dinoai-admin', 'dinoai', DINOAI_PATH . 'languages' );
+			wp_set_script_translations( 'dinoai-audit-admin', 'dinoai-audit', DINOAI_AUDIT_PATH . 'languages' );
 
 			wp_add_inline_script(
-				'dinoai-admin',
-				'window.dinoaiAdmin = ' . wp_json_encode( $this->js_config() ) . ';',
+				'dinoai-audit-admin',
+				'window.dinoaiAuditAdmin = ' . wp_json_encode( $this->js_config() ) . ';',
 				'before'
 			);
 		}
 
 		if ( in_array( $hook, array( 'post.php', 'post-new.php' ), true ) ) {
 			wp_enqueue_style(
-				'dinoai-admin',
-				DINOAI_URL . 'admin/css/admin.css',
+				'dinoai-audit-admin',
+				DINOAI_AUDIT_URL . 'admin/css/admin.css',
 				array( 'dashicons' ),
-				DINOAI_VERSION
+				DINOAI_AUDIT_VERSION
 			);
 
 			wp_enqueue_style(
-				'dinoai-admin-content',
-				DINOAI_URL . 'admin/css/dinoai-content.css',
-				array( 'dinoai-admin' ),
-				DINOAI_VERSION
+				'dinoai-audit-admin-content',
+				DINOAI_AUDIT_URL . 'admin/css/dinoai-audit-content.css',
+				array( 'dinoai-audit-admin' ),
+				DINOAI_AUDIT_VERSION
 			);
 
 			wp_enqueue_script(
-				'dinoai-classic',
-				DINOAI_URL . 'admin/js/classic.js',
+				'dinoai-audit-classic',
+				DINOAI_AUDIT_URL . 'admin/js/classic.js',
 				array( 'jquery', 'wp-i18n', 'wp-api-fetch' ),
-				DINOAI_VERSION,
+				DINOAI_AUDIT_VERSION,
 				true
 			);
 
-			wp_set_script_translations( 'dinoai-classic', 'dinoai', DINOAI_PATH . 'languages' );
+			wp_set_script_translations( 'dinoai-audit-classic', 'dinoai-audit', DINOAI_AUDIT_PATH . 'languages' );
 
 			wp_add_inline_script(
-				'dinoai-classic',
-				'window.dinoaiAdmin = ' . wp_json_encode( $this->js_config() ) . ';',
+				'dinoai-audit-classic',
+				'window.dinoaiAuditAdmin = ' . wp_json_encode( $this->js_config() ) . ';',
 				'before'
 			);
 		}
@@ -135,7 +136,7 @@ class Admin {
 	 * @return void
 	 */
 	public function enqueue_editor() {
-		$asset_file = DINOAI_PATH . 'build/index.asset.php';
+		$asset_file = DINOAI_AUDIT_PATH . 'build/index.asset.php';
 		$asset      = is_readable( $asset_file ) ? require $asset_file : array(
 			'dependencies' => array(
 				'wp-plugins',
@@ -151,29 +152,29 @@ class Admin {
 				'wp-core-data',
 				'wp-rich-text',
 			),
-			'version'      => DINOAI_VERSION,
+			'version'      => DINOAI_AUDIT_VERSION,
 		);
 
 		wp_enqueue_style(
-			'dinoai-editor',
-			DINOAI_URL . 'admin/css/editor.css',
+			'dinoai-audit-editor',
+			DINOAI_AUDIT_URL . 'admin/css/editor.css',
 			array( 'wp-components' ),
-			DINOAI_VERSION
+			DINOAI_AUDIT_VERSION
 		);
 
 		wp_enqueue_script(
-			'dinoai-editor',
-			DINOAI_URL . 'build/index.js',
+			'dinoai-audit-editor',
+			DINOAI_AUDIT_URL . 'build/index.js',
 			$asset['dependencies'],
 			$asset['version'],
 			true
 		);
 
-		wp_set_script_translations( 'dinoai-editor', 'dinoai', DINOAI_PATH . 'languages' );
+		wp_set_script_translations( 'dinoai-audit-editor', 'dinoai-audit', DINOAI_AUDIT_PATH . 'languages' );
 
 		wp_add_inline_script(
-			'dinoai-editor',
-			'window.dinoaiEditor = ' . wp_json_encode( $this->js_config() ) . ';',
+			'dinoai-audit-editor',
+			'window.dinoaiAuditEditor = ' . wp_json_encode( $this->js_config() ) . ';',
 			'before'
 		);
 	}
@@ -187,7 +188,7 @@ class Admin {
 	 * @return string[]
 	 */
 	public function action_links( $links ) {
-		$settings = '<a href="' . esc_url( admin_url( 'admin.php?page=dinoai-settings' ) ) . '">' . esc_html__( 'Settings', 'dinoai' ) . '</a>';
+		$settings = '<a href="' . esc_url( admin_url( 'admin.php?page=dinoai-audit-settings' ) ) . '">' . esc_html__( 'Settings', 'dinoai-audit' ) . '</a>';
 		array_unshift( $links, $settings );
 		return $links;
 	}
@@ -206,9 +207,11 @@ class Admin {
 			$post_id = (int) get_the_ID();
 		}
 
+		$audit_screen = Site_Audit::screen();
+
 		$config = array(
-			'restUrl'        => rest_url( 'dinoai/v1/' ),
-			'settingsUrl'    => admin_url( 'admin.php?page=dinoai-settings' ),
+			'restUrl'        => rest_url( 'dinoai-audit/v1/' ),
+			'settingsUrl'    => admin_url( 'admin.php?page=dinoai-audit-settings' ),
 			'configured'     => $this->plugin->settings()->is_configured(),
 			'modules'        => array(
 				'content' => $this->plugin->settings()->is_module_enabled( 'content' ),
@@ -218,6 +221,10 @@ class Admin {
 			),
 			'supportsVision' => $this->plugin->ai()->supports_vision(),
 			'postId'         => $post_id,
+			'audit'          => array(
+				'running' => $audit_screen['running'],
+				'empty'   => $audit_screen['empty'],
+			),
 		);
 
 		/**
@@ -227,6 +234,6 @@ class Admin {
 		 *
 		 * @param array<string, mixed> $config Config.
 		 */
-		return apply_filters( 'dinoai_js_config', $config );
+		return apply_filters( 'dinoai_audit_js_config', $config );
 	}
 }

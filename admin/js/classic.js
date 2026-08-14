@@ -2,36 +2,36 @@
 	'use strict';
 
 	function config() {
-		return window.dinoaiAdmin || {};
+		return window.dinoaiAuditAdmin || {};
 	}
 
 	function __(text) {
-		return window.wp && wp.i18n ? wp.i18n.__(text, 'dinoai') : text;
+		return window.wp && wp.i18n ? wp.i18n.__(text, 'dinoai-audit') : text;
 	}
 
 	function friendlyError(error) {
 		if (error && error.message) {
 			return error.message;
 		}
-		return __('DinoAI could not complete the request. Please check your AI provider settings and try again.');
+		return __('DinoAI Audit could not complete the request. Please check your AI provider settings and try again.');
 	}
 
 	$(function () {
-		var $root = $('[data-dinoai-classic]');
+		var $root = $('[data-dinoai-audit-classic]');
 		if (!$root.length) {
 			return;
 		}
 
-		var $input = $('#dinoai-classic-input');
-		var $result = $('#dinoai-classic-result');
-		var $status = $root.find('.dinoai-classic-status');
-		var $copy = $('#dinoai-classic-copy');
+		var $input = $('#dinoai-audit-classic-input');
+		var $result = $('#dinoai-audit-classic-result');
+		var $status = $root.find('.dinoai-audit-classic-status');
+		var $copy = $('#dinoai-audit-classic-copy');
 		var postId = (config().postId || 0);
 
-		$root.on('click', '.dinoai-classic-action', function () {
+		$root.on('click', '.dinoai-audit-classic-action', function () {
 			var promptKey = $(this).data('prompt-key');
 			var input = $.trim($input.val() || '');
-			var $buttons = $root.find('.dinoai-classic-action');
+			var $buttons = $root.find('.dinoai-audit-classic-action');
 
 			if (!input) {
 				$status.text(__('Select or provide some content first.'));
@@ -42,7 +42,7 @@
 			$status.text(__('Working…'));
 
 			wp.apiFetch({
-				path: '/dinoai/v1/generate',
+				path: '/dinoai-audit/v1/generate',
 				method: 'POST',
 				data: {
 					prompt_key: promptKey,

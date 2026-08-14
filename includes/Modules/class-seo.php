@@ -2,15 +2,15 @@
 /**
  * SEO module.
  *
- * @package WPDINO\DinoAI
+ * @package WPDINO\DinoAIAudit
  */
 
-namespace WPDINO\DinoAI\Modules;
+namespace WPDINO\DinoAIAudit\Modules;
 
 defined( 'ABSPATH' ) || exit;
 
-use WPDINO\DinoAI\Loader;
-use WPDINO\DinoAI\Plugin;
+use WPDINO\DinoAIAudit\Loader;
+use WPDINO\DinoAIAudit\Plugin;
 
 /**
  * Basic AI SEO assistance. Complements, rather than replaces, dedicated SEO plugins.
@@ -24,7 +24,7 @@ class SEO {
 	 *
 	 * @var string
 	 */
-	const META_DESCRIPTION_KEY = '_dinoai_meta_description';
+	const META_DESCRIPTION_KEY = '_dinoai_audit_meta_description';
 
 	/**
 	 * Plugin instance.

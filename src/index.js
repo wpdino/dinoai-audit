@@ -1,5 +1,5 @@
 /**
- * DinoAI Gutenberg sidebar.
+ * DinoAI Audit Gutenberg sidebar.
  */
 import { registerPlugin } from '@wordpress/plugins';
 import {
@@ -12,18 +12,20 @@ import {
 	TextareaControl,
 	Notice,
 	Spinner,
+	createSlotFill,
 } from '@wordpress/components';
-import { useSelect, useDispatch } from '@wordpress/data';
-import { createElement as el, useState, Fragment } from '@wordpress/element';
+import { useSelect, useDispatch, select as dataSelect } from '@wordpress/data';
+import { createElement as el, useState, useEffect, useRef, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
 import { createBlock } from '@wordpress/blocks';
-import { create, insert, toHTMLString } from '@wordpress/rich-text';
+import { create, insert, slice, getTextContent, toHTMLString } from '@wordpress/rich-text';
 import { SVG, Path } from '@wordpress/primitives';
 
-const config = window.dinoaiEditor || {};
+const config = window.dinoaiAuditEditor || {};
+const { Slot: DinoAIAuditSidebarSlot } = createSlotFill( 'DinoAIAudit.SidebarPanels' );
 
-function DinoAIIcon() {
+function DinoAIAuditIcon() {
 	return el(
 		SVG,
 		{ viewBox: '0 0 24 24', xmlns: 'http://www.w3.org/2000/svg' },
@@ -38,49 +40,203 @@ function friendlyError( error ) {
 		return error.message;
 	}
 	return __(
-		'DinoAI could not complete the request. Please check your AI provider settings and try again.',
-		'dinoai'
+		'DinoAI Audit could not complete the request. Please check your AI provider settings and try again.',
+		'dinoai-audit'
 	);
 }
 
-function getSelectedPlainText() {
-	const selection = window.getSelection();
-	return selection ? selection.toString() : '';
+function getBlockPlainText( block ) {
+	if ( ! block ) {
+		return '';
+	}
+
+	if ( typeof block.attributes?.content === 'string' && block.attributes.content ) {
+		return getTextContent( create( { html: block.attributes.content } ) );
+	}
+
+	if ( Array.isArray( block.innerBlocks ) && block.innerBlocks.length ) {
+		return block.innerBlocks
+			.map( getBlockPlainText )
+			.filter( Boolean )
+			.join( '\n\n' );
+	}
+
+	return '';
 }
 
-function DinoAISidebar() {
+function getDomSelectedText() {
+	const iframe = document.querySelector(
+		'iframe[name="editor-canvas"], iframe.editor-canvas__iframe'
+	);
+	const win = iframe && iframe.contentWindow ? iframe.contentWindow : window;
+
+	try {
+		const selection = win.getSelection();
+		return selection ? selection.toString() : '';
+	} catch ( error ) {
+		return '';
+	}
+}
+
+function getSelectedEditorText( blockEditor ) {
+	const multi = blockEditor.getMultiSelectedBlocks();
+
+	if ( multi && multi.length ) {
+		return multi.map( getBlockPlainText ).filter( Boolean ).join( '\n\n' );
+	}
+
+	const selected = blockEditor.getSelectedBlock();
+	const start = blockEditor.getSelectionStart();
+	const end = blockEditor.getSelectionEnd();
+
+	if (
+		selected &&
+		start &&
+		end &&
+		start.clientId === selected.clientId &&
+		end.clientId === selected.clientId &&
+		typeof start.offset === 'number' &&
+		typeof end.offset === 'number' &&
+		start.offset !== end.offset &&
+		typeof selected.attributes?.content === 'string'
+	) {
+		const from = Math.min( start.offset, end.offset );
+		const to = Math.max( start.offset, end.offset );
+		const value = create( { html: selected.attributes.content } );
+
+		return getTextContent( slice( value, from, to ) );
+	}
+
+	if ( selected ) {
+		const blockText = getBlockPlainText( selected );
+
+		if ( blockText ) {
+			return blockText;
+		}
+	}
+
+	return getDomSelectedText();
+}
+
+function toRichHtml( markup ) {
+	const trimmed = ( markup || '' ).trim();
+
+	if ( ! trimmed ) {
+		return '';
+	}
+
+	const single = trimmed.match( /^<p(?:\s[^>]*)?>([\s\S]*)<\/p>$/i );
+
+	if ( single && ! /<p[\s>]/i.test( single[ 1 ] ) ) {
+		return single[ 1 ];
+	}
+
+	return trimmed.replace( /^<p(?:\s[^>]*)?>/i, '' ).replace( /<\/p>$/i, '' );
+}
+
+function getSelectionSnapshot( blockEditor ) {
+	const multi = blockEditor.getMultiSelectedBlocks() || [];
+	const selected = blockEditor.getSelectedBlock();
+	const start = blockEditor.getSelectionStart();
+	const end = blockEditor.getSelectionEnd();
+	const blocks = multi.length ? multi : selected ? [ selected ] : [];
+	let range = null;
+
+	if (
+		selected &&
+		start &&
+		end &&
+		start.clientId === selected.clientId &&
+		end.clientId === selected.clientId &&
+		typeof start.offset === 'number' &&
+		typeof end.offset === 'number' &&
+		start.offset !== end.offset
+	) {
+		range = {
+			clientId: selected.clientId,
+			from: Math.min( start.offset, end.offset ),
+			to: Math.max( start.offset, end.offset ),
+		};
+	}
+
+	return {
+		selected,
+		blocks,
+		clientIds: blocks.map( ( block ) => block.clientId ),
+		range,
+		selectedText: getSelectedEditorText( blockEditor ),
+	};
+}
+
+function snapshotIsUseful( snapshot ) {
+	return Boolean( snapshot && ( snapshot.range || snapshot.clientIds.length ) );
+}
+
+function DinoAIAuditSidebar() {
 	const [ status, setStatus ] = useState( { type: '', message: '' } );
 	const [ loading, setLoading ] = useState( false );
 	const [ result, setResult ] = useState( '' );
 	const [ structured, setStructured ] = useState( null );
+	const [ altSaved, setAltSaved ] = useState( false );
 
-	const { insertBlocks, updateBlockAttributes, insertBlock } =
+	const { insertBlocks, updateBlockAttributes, insertBlock, replaceBlocks } =
 		useDispatch( 'core/block-editor' );
 	const { editPost } = useDispatch( 'core/editor' );
+
+	const lastSelectedText = useRef( '' );
+	const lastSelection = useRef( null );
+	const resultSelection = useRef( null );
 
 	const editorState = useSelect( ( select ) => {
 		const blockEditor = select( 'core/block-editor' );
 		const editor = select( 'core/editor' );
-		const selected = blockEditor.getSelectedBlock();
-		const start = blockEditor.getSelectionStart();
-		const end = blockEditor.getSelectionEnd();
+		const snapshot = getSelectionSnapshot( blockEditor );
 
 		return {
 			postId: editor.getCurrentPostId(),
 			title: editor.getEditedPostAttribute( 'title' ) || '',
-			selected,
-			start,
-			end,
-			selectedClientId: selected ? selected.clientId : null,
+			selected: snapshot.selected,
+			start: blockEditor.getSelectionStart(),
+			end: blockEditor.getSelectionEnd(),
+			selectedClientId: snapshot.selected ? snapshot.selected.clientId : null,
+			selectedText: snapshot.selectedText,
+			selectionSnapshot: snapshot,
 		};
 	}, [] );
+
+	useEffect( () => {
+		if ( editorState.selectedText ) {
+			lastSelectedText.current = editorState.selectedText;
+		}
+
+		const next = editorState.selectionSnapshot;
+
+		if ( ! snapshotIsUseful( next ) ) {
+			return;
+		}
+
+		const prev = lastSelection.current;
+
+		if (
+			prev &&
+			prev.range &&
+			! next.range &&
+			prev.clientIds.length === 1 &&
+			next.clientIds.length === 1 &&
+			prev.clientIds[ 0 ] === next.clientIds[ 0 ]
+		) {
+			return;
+		}
+
+		lastSelection.current = next;
+	}, [ editorState.selectedText, editorState.selectionSnapshot ] );
 
 	function request( path, data ) {
 		setLoading( true );
 		setStatus( { type: '', message: '' } );
 
 		return apiFetch( {
-			path: '/dinoai/v1' + path,
+			path: '/dinoai-audit/v1' + path,
 			method: 'POST',
 			data,
 		} )
@@ -94,21 +250,24 @@ function DinoAISidebar() {
 	}
 
 	function runContent( promptKey ) {
-		const input = getSelectedPlainText();
+		const input = ( editorState.selectedText || lastSelectedText.current || '' ).trim();
 
 		if ( ! input ) {
 			setStatus( {
 				type: 'error',
-				message: __( 'Select some text in the editor first.', 'dinoai' ),
+				message: __( 'Select some text in the editor first.', 'dinoai-audit' ),
 			} );
 			return;
 		}
+
+		const snapshot = lastSelection.current;
 
 		request( '/generate', {
 			prompt_key: promptKey,
 			input,
 			post_id: editorState.postId,
 		} ).then( ( response ) => {
+			resultSelection.current = snapshot;
 			setResult( response.text || '' );
 			setStructured( response.structured || null );
 		} );
@@ -134,7 +293,7 @@ function DinoAISidebar() {
 		}
 		setStatus( {
 			type: 'success',
-			message: __( 'Copied.', 'dinoai' ),
+			message: __( 'Copied.', 'dinoai-audit' ),
 		} );
 	}
 
@@ -153,36 +312,64 @@ function DinoAISidebar() {
 
 		setStatus( {
 			type: 'success',
-			message: __( 'Inserted as a new paragraph. Review it before publishing.', 'dinoai' ),
+			message: __( 'Inserted as a new paragraph. Review it before publishing.', 'dinoai-audit' ),
 		} );
 	}
 
 	function replaceSelection() {
-		if ( ! result || ! editorState.selected ) {
-			insertResult();
+		if ( ! result ) {
 			return;
 		}
 
-		const block = editorState.selected;
-		const start = editorState.start;
-		const end = editorState.end;
+		const snapshot = resultSelection.current || lastSelection.current;
+		const html = toRichHtml( result );
+		const range = snapshot && snapshot.range ? snapshot.range : null;
+		const clientIds = snapshot && snapshot.clientIds ? snapshot.clientIds : [];
+		const rangeBlock = range
+			? dataSelect( 'core/block-editor' ).getBlock( range.clientId ) ||
+			  ( snapshot && snapshot.selected )
+			: null;
 
 		if (
-			typeof block.attributes.content === 'string' &&
-			start &&
-			end &&
-			start.clientId === end.clientId &&
-			typeof start.offset === 'number' &&
-			typeof end.offset === 'number'
+			range &&
+			rangeBlock &&
+			typeof rangeBlock.attributes?.content === 'string'
 		) {
-			const value = create( { html: block.attributes.content } );
-			const next = insert( value, result, start.offset, end.offset );
-			updateBlockAttributes( block.clientId, {
+			const value = create( { html: rangeBlock.attributes.content } );
+			const next = insert( value, create( { html } ), range.from, range.to );
+
+			updateBlockAttributes( rangeBlock.clientId, {
 				content: toHTMLString( { value: next } ),
 			} );
 			setStatus( {
 				type: 'success',
-				message: __( 'Selected text replaced. Review the change before publishing.', 'dinoai' ),
+				message: __( 'Selected text replaced. Review the change before publishing.', 'dinoai-audit' ),
+			} );
+			return;
+		}
+
+		if ( clientIds.length === 1 ) {
+			const block =
+				dataSelect( 'core/block-editor' ).getBlock( clientIds[ 0 ] ) ||
+				( snapshot && snapshot.blocks && snapshot.blocks[ 0 ] );
+
+			if ( block && typeof block.attributes?.content === 'string' ) {
+				updateBlockAttributes( clientIds[ 0 ], { content: html } );
+				setStatus( {
+					type: 'success',
+					message: __( 'Selected text replaced. Review the change before publishing.', 'dinoai-audit' ),
+				} );
+				return;
+			}
+		}
+
+		if ( clientIds.length ) {
+			replaceBlocks( clientIds, [
+				createBlock( 'core/paragraph', { content: html } ),
+			] );
+			setStatus( {
+				type: 'success',
+				message: __( 'Selected text replaced. Review the change before publishing.', 'dinoai-audit' ),
 			} );
 			return;
 		}
@@ -195,7 +382,7 @@ function DinoAISidebar() {
 			editPost( { title: structured.title } );
 			setStatus( {
 				type: 'success',
-				message: __( 'Post title updated. Review it before publishing.', 'dinoai' ),
+				message: __( 'Post title updated. Review it before publishing.', 'dinoai-audit' ),
 			} );
 		}
 	}
@@ -210,7 +397,7 @@ function DinoAISidebar() {
 		if ( ! attachmentId ) {
 			setStatus( {
 				type: 'error',
-				message: __( 'Select an image block first.', 'dinoai' ),
+				message: __( 'Select an image block first.', 'dinoai-audit' ),
 			} );
 			return;
 		}
@@ -219,8 +406,8 @@ function DinoAISidebar() {
 			setStatus( {
 				type: 'error',
 				message: __(
-					'The selected AI model cannot analyze images. Choose a vision-capable model such as gpt-4o-mini in DinoAI settings.',
-					'dinoai'
+					'The selected AI model cannot analyze images. Choose a vision-capable model such as gpt-4o-mini in DinoAI Audit settings.',
+					'dinoai-audit'
 				),
 			} );
 			return;
@@ -228,6 +415,7 @@ function DinoAISidebar() {
 
 		request( '/image-alt', { attachment_id: attachmentId } ).then(
 			( response ) => {
+				setAltSaved( false );
 				setResult( response.alt_text || '' );
 				setStructured( { alt_text: response.alt_text, attachment_id: attachmentId } );
 			}
@@ -255,9 +443,13 @@ function DinoAISidebar() {
 					alt: response.alt_text,
 				} );
 			}
+			setAltSaved( true );
 			setStatus( {
 				type: 'success',
-				message: __( 'Alt text saved.', 'dinoai' ),
+				message: __(
+					'Alt text saved. Save or publish this post or page to keep the change.',
+					'dinoai-audit'
+				),
 			} );
 		} );
 	}
@@ -265,44 +457,44 @@ function DinoAISidebar() {
 	if ( ! config.configured ) {
 		return el(
 			'div',
-			{ className: 'dinoai-sidebar' },
+			{ className: 'dinoai-audit-sidebar' },
 			el(
 				Notice,
 				{ status: 'warning', isDismissible: false },
-				__( 'No AI provider configured.', 'dinoai' ),
+				__( 'No AI provider configured.', 'dinoai-audit' ),
 				' ',
 				el(
 					'a',
 					{ href: ( config.settingsUrl || '' ) + '#provider' },
-					__( 'Connect an AI provider in DinoAI → Settings.', 'dinoai' )
+					__( 'Connect an AI provider in DinoAI Audit → Settings.', 'dinoai-audit' )
 				)
 			)
 		);
 	}
 
 	const contentActions = [
-		[ 'content.improve', __( 'Improve', 'dinoai' ) ],
-		[ 'content.rewrite', __( 'Rewrite', 'dinoai' ) ],
-		[ 'content.shorten', __( 'Shorten', 'dinoai' ) ],
-		[ 'content.expand', __( 'Expand', 'dinoai' ) ],
-		[ 'content.summarize', __( 'Summarize', 'dinoai' ) ],
+		[ 'content.improve', __( 'Improve', 'dinoai-audit' ) ],
+		[ 'content.rewrite', __( 'Rewrite', 'dinoai-audit' ) ],
+		[ 'content.shorten', __( 'Shorten', 'dinoai-audit' ) ],
+		[ 'content.expand', __( 'Expand', 'dinoai-audit' ) ],
+		[ 'content.summarize', __( 'Summarize', 'dinoai-audit' ) ],
 	];
 
 	return el(
 		'div',
-		{ className: 'dinoai-sidebar' },
+		{ className: 'dinoai-audit-sidebar' },
 		config.modules && config.modules.content
 			? el(
 					PanelBody,
-					{ title: __( 'Content', 'dinoai' ), initialOpen: true },
+					{ title: __( 'Content', 'dinoai-audit' ), initialOpen: true },
 					el(
 						'p',
-						{ className: 'dinoai-empty-state' },
-						__( 'Select text in the editor, then choose an action. DinoAI will not replace content until you confirm.', 'dinoai' )
+						{ className: 'dinoai-audit-empty-state' },
+						__( 'Select text in the editor, then choose an action. DinoAI Audit will not replace content until you confirm.', 'dinoai-audit' )
 					),
 					el(
 						'div',
-						{ className: 'dinoai-action-row' },
+						{ className: 'dinoai-audit-action-row' },
 						contentActions.map( ( item ) =>
 							el(
 								Button,
@@ -321,15 +513,15 @@ function DinoAISidebar() {
 		config.modules && config.modules.seo
 			? el(
 					PanelBody,
-					{ title: __( 'SEO', 'dinoai' ), initialOpen: true },
+					{ title: __( 'SEO', 'dinoai-audit' ), initialOpen: true },
 					el(
 						'p',
-						{ className: 'dinoai-empty-state' },
-						__( 'Generate suggestions from the current post. DinoAI complements dedicated SEO plugins.', 'dinoai' )
+						{ className: 'dinoai-audit-empty-state' },
+						__( 'Generate suggestions from the current post. DinoAI Audit complements dedicated SEO plugins.', 'dinoai-audit' )
 					),
 					el(
 						'div',
-						{ className: 'dinoai-action-row' },
+						{ className: 'dinoai-audit-action-row' },
 						el(
 							Button,
 							{
@@ -337,7 +529,7 @@ function DinoAISidebar() {
 								disabled: loading,
 								onClick: () => runSeo( 'seo.title' ),
 							},
-							__( 'Generate title', 'dinoai' )
+							__( 'Generate title', 'dinoai-audit' )
 						),
 						el(
 							Button,
@@ -346,7 +538,7 @@ function DinoAISidebar() {
 								disabled: loading,
 								onClick: () => runSeo( 'seo.meta_description' ),
 							},
-							__( 'Generate description', 'dinoai' )
+							__( 'Generate description', 'dinoai-audit' )
 						),
 						el(
 							Button,
@@ -355,7 +547,7 @@ function DinoAISidebar() {
 								disabled: loading,
 								onClick: () => runSeo( 'seo.keywords' ),
 							},
-							__( 'Focus keywords', 'dinoai' )
+							__( 'Focus keywords', 'dinoai-audit' )
 						),
 						el(
 							Button,
@@ -364,22 +556,22 @@ function DinoAISidebar() {
 								disabled: loading,
 								onClick: () => runSeo( 'seo.analyze' ),
 							},
-							__( 'SEO suggestions', 'dinoai' )
+							__( 'SEO suggestions', 'dinoai-audit' )
 						)
 					),
 					structured && structured.keywords
 						? el(
 								'div',
-								{ className: 'dinoai-keyword-list' },
+								{ className: 'dinoai-audit-keyword-list' },
 								structured.keywords.map( ( keyword ) =>
-									el( 'span', { className: 'dinoai-keyword', key: keyword }, keyword )
+									el( 'span', { className: 'dinoai-audit-keyword', key: keyword }, keyword )
 								)
 						  )
 						: null,
 					structured && structured.suggestions
 						? el(
 								'ul',
-								{ className: 'dinoai-suggestions' },
+								{ className: 'dinoai-audit-suggestions' },
 								structured.suggestions.map( ( item, index ) =>
 									el( 'li', { key: index }, item.message )
 								)
@@ -393,7 +585,7 @@ function DinoAISidebar() {
 									onClick: applyTitle,
 									style: { marginTop: '8px' },
 								},
-								__( 'Use as post title', 'dinoai' )
+								__( 'Use as post title', 'dinoai-audit' )
 						  )
 						: null
 			  )
@@ -401,10 +593,10 @@ function DinoAISidebar() {
 		config.modules && config.modules.images
 			? el(
 					PanelBody,
-					{ title: __( 'Image', 'dinoai' ), initialOpen: false },
+					{ title: __( 'Image', 'dinoai-audit' ), initialOpen: false },
 					el(
 						'div',
-						{ className: 'dinoai-action-row' },
+						{ className: 'dinoai-audit-action-row' },
 						el(
 							Button,
 							{
@@ -412,22 +604,23 @@ function DinoAISidebar() {
 								disabled: loading,
 								onClick: generateImageAlt,
 							},
-							__( 'Generate alt text', 'dinoai' )
+							__( 'Generate alt text', 'dinoai-audit' )
 						),
 						result && structured && structured.attachment_id
 							? el(
 									Button,
 									{
 										variant: 'primary',
-										disabled: loading,
+										disabled: loading || altSaved,
 										onClick: saveAlt,
 									},
-									__( 'Save alt text', 'dinoai' )
+									__( 'Save alt text', 'dinoai-audit' )
 							  )
 							: null
 					)
 			  )
 			: null,
+		el( DinoAIAuditSidebarSlot, { bubblesVirtually: true } ),
 		loading ? el( Spinner ) : null,
 		status.message
 			? el(
@@ -440,52 +633,57 @@ function DinoAISidebar() {
 			  )
 			: null,
 		el( TextareaControl, {
-			label: __( 'Result', 'dinoai' ),
+			label: __( 'Result', 'dinoai-audit' ),
 			value: result,
-			onChange: setResult,
-			help: __( 'Review the result, then copy, insert, or replace selected text.', 'dinoai' ),
+			onChange: ( value ) => {
+				setResult( value );
+				if ( altSaved ) {
+					setAltSaved( false );
+				}
+			},
+			help: __( 'Review the result, then copy, insert, or replace selected text.', 'dinoai-audit' ),
 		} ),
 		el(
 			'div',
-			{ className: 'dinoai-result-actions' },
+			{ className: 'dinoai-audit-result-actions' },
 			el(
 				Button,
 				{ variant: 'secondary', disabled: ! result, onClick: copyResult },
-				__( 'Copy', 'dinoai' )
+				__( 'Copy', 'dinoai-audit' )
 			),
 			el(
 				Button,
 				{ variant: 'secondary', disabled: ! result, onClick: insertResult },
-				__( 'Insert', 'dinoai' )
+				__( 'Insert', 'dinoai-audit' )
 			),
 			el(
 				Button,
 				{ variant: 'primary', disabled: ! result, onClick: replaceSelection },
-				__( 'Replace selection', 'dinoai' )
+				__( 'Replace selection', 'dinoai-audit' )
 			)
 		)
 	);
 }
 
-function DinoAIPlugin() {
+function DinoAIAuditPlugin() {
 	return el(
 		Fragment,
 		null,
 		el(
 			PluginSidebarMoreMenuItem,
-			{ target: 'dinoai-sidebar' },
-			__( 'DinoAI', 'dinoai' )
+			{ target: 'dinoai-audit-sidebar' },
+			__( 'DinoAI Audit', 'dinoai-audit' )
 		),
 		el(
 			PluginSidebar,
 			{
-				name: 'dinoai-sidebar',
-				title: __( 'DinoAI', 'dinoai' ),
-				icon: DinoAIIcon,
+				name: 'dinoai-audit-sidebar',
+				title: __( 'DinoAI Audit', 'dinoai-audit' ),
+				icon: DinoAIAuditIcon,
 			},
-			el( DinoAISidebar )
+			el( DinoAIAuditSidebar )
 		)
 	);
 }
 
-registerPlugin( 'dinoai', { render: DinoAIPlugin, icon: DinoAIIcon } );
+registerPlugin( 'dinoai-audit', { render: DinoAIAuditPlugin, icon: DinoAIAuditIcon } );

@@ -2,10 +2,10 @@
 /**
  * AI provider interface.
  *
- * @package WPDINO\DinoAI
+ * @package WPDINO\DinoAIAudit
  */
 
-namespace WPDINO\DinoAI\AI;
+namespace WPDINO\DinoAIAudit\AI;
 
 defined( 'ABSPATH' ) || exit;
 

@@ -2,38 +2,38 @@
 	'use strict';
 
 	function config() {
-		return window.dinoaiMedia || {};
+		return window.dinoaiAuditMedia || {};
 	}
 
 	function __(text) {
-		return window.wp && wp.i18n ? wp.i18n.__(text, 'dinoai') : text;
+		return window.wp && wp.i18n ? wp.i18n.__(text, 'dinoai-audit') : text;
 	}
 
 	function friendlyError(error) {
 		if (error && error.message) {
 			return error.message;
 		}
-		return __('DinoAI could not complete the request. Please check your AI provider settings and try again.');
+		return __('DinoAI Audit could not complete the request. Please check your AI provider settings and try again.');
 	}
 
 	function addButton($container, attachmentId, $altField) {
-		if (!$container.length || $container.find('.dinoai-media-generate').length) {
+		if (!$container.length || $container.find('.dinoai-audit-media-generate').length) {
 			return;
 		}
 
-		var $wrap = $('<p class="dinoai-media-tools" />');
-		var $button = $('<button type="button" class="button dinoai-media-generate" />').text(__('Generate alt text'));
-		var $status = $('<span class="dinoai-test-status" aria-live="polite" />');
+		var $wrap = $('<p class="dinoai-audit-media-tools" />');
+		var $button = $('<button type="button" class="button dinoai-audit-media-generate" />').text(__('Generate alt text'));
+		var $status = $('<span class="dinoai-audit-test-status" aria-live="polite" />');
 		$wrap.append($button).append(' ').append($status);
 		$container.append($wrap);
 
 		$button.on('click', function () {
 			if (!config().configured) {
-				$status.text(__('No AI provider configured. Connect an AI provider in DinoAI → Settings.'));
+				$status.text(__('No AI provider configured. Connect an AI provider in DinoAI Audit → Settings.'));
 				return;
 			}
 			if (!config().supportsVision) {
-				$status.text(__('The selected AI model cannot analyze images. Choose a vision-capable model such as gpt-4o-mini in DinoAI settings.'));
+				$status.text(__('The selected AI model cannot analyze images. Choose a vision-capable model such as gpt-4o-mini in DinoAI Audit settings.'));
 				return;
 			}
 
@@ -41,7 +41,7 @@
 			$status.text(__('Generating…'));
 
 			wp.apiFetch({
-				path: '/dinoai/v1/image-alt',
+				path: '/dinoai-audit/v1/image-alt',
 				method: 'POST',
 				data: { attachment_id: attachmentId }
 			})

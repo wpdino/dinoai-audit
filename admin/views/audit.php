@@ -2,18 +2,21 @@
 /**
  * Site audit screen.
  *
- * @package WPDINO\DinoAI
+ * @package WPDINO\DinoAIAudit
  *
  * @var array<string, mixed> $last
  */
 
 defined( 'ABSPATH' ) || exit;
 
-$dinoai_header_title   = __( 'Welcome to DinoAI!', 'dinoai' );
-$dinoai_header_tagline = __( 'A basic audit of available WordPress data. This is not a complete security, accessibility, SEO, or performance audit.', 'dinoai' );
+use WPDINO\DinoAIAudit\Modules\Site_Audit;
+
+$screen                      = Site_Audit::screen();
+$dinoai_audit_header_title   = __( 'Welcome to DinoAI Audit!', 'dinoai-audit' );
+$dinoai_audit_header_tagline = $screen['tagline'];
 ?>
 <div class="wpdino-settings-wrap">
-	<?php require DINOAI_PATH . 'admin/views/partials/header.php'; ?>
+	<?php require DINOAI_AUDIT_PATH . 'admin/views/partials/header.php'; ?>
 
 	<div class="wpdino-main">
 		<div class="wpdino-content">
@@ -23,16 +26,19 @@ $dinoai_header_tagline = __( 'A basic audit of available WordPress data. This is
 						<div>
 							<h3 class="wpdino-section-title">
 								<span class="dashicons dashicons-chart-bar"></span>
-								<?php esc_html_e( 'Site health', 'dinoai' ); ?>
+								<span><?php echo esc_html( $screen['heading'] ); ?></span>
+								<?php if ( '' !== $screen['badge'] ) : ?>
+									<span class="dinoai-audit-pro-badge"><?php echo esc_html( $screen['badge'] ); ?></span>
+								<?php endif; ?>
 							</h3>
-							<p class="wpdino-section-description"><?php esc_html_e( 'A readable score, category breakdown, and clear next steps from data already on this site.', 'dinoai' ); ?></p>
+							<p class="wpdino-section-description"><?php echo esc_html( $screen['description'] ); ?></p>
 						</div>
-						<div class="dinoai-inline-actions">
-							<button type="button" class="wpdino-btn wpdino-btn-primary" id="dinoai-run-audit">
+						<div class="dinoai-audit-inline-actions">
+							<button type="button" class="wpdino-btn wpdino-btn-primary" id="dinoai-audit-run-audit">
 								<span class="dashicons dashicons-update"></span>
-								<?php esc_html_e( 'Run basic audit', 'dinoai' ); ?>
+								<?php echo esc_html( $screen['button'] ); ?>
 							</button>
-							<span class="dinoai-test-status" id="dinoai-audit-status" aria-live="polite"></span>
+							<span class="dinoai-audit-test-status" id="dinoai-audit-status" aria-live="polite"></span>
 						</div>
 					</div>
 
@@ -40,15 +46,20 @@ $dinoai_header_tagline = __( 'A basic audit of available WordPress data. This is
 						<?php if ( isset( $last['score'] ) ) : ?>
 							<?php
 							$score = $last;
-							require DINOAI_PATH . 'admin/views/partials/audit-results.php';
+							require DINOAI_AUDIT_PATH . 'admin/views/partials/audit-results.php';
 							?>
 						<?php else : ?>
-							<div class="dinoai-empty">
-								<span class="dinoai-tile-icon" aria-hidden="true">
+							<div class="dinoai-audit-empty">
+								<span class="dinoai-audit-tile-icon" aria-hidden="true">
 									<span class="dashicons dashicons-chart-bar"></span>
 								</span>
-								<h3><?php esc_html_e( 'No audit yet', 'dinoai' ); ?></h3>
-								<p><?php esc_html_e( 'Run a basic audit to see your site score, category breakdown, and recommended next steps.', 'dinoai' ); ?></p>
+								<h3>
+									<span><?php esc_html_e( 'No audit yet', 'dinoai-audit' ); ?></span>
+									<?php if ( '' !== $screen['badge'] ) : ?>
+										<span class="dinoai-audit-pro-badge"><?php echo esc_html( $screen['badge'] ); ?></span>
+									<?php endif; ?>
+								</h3>
+								<p><?php echo esc_html( $screen['empty'] ); ?></p>
 							</div>
 						<?php endif; ?>
 					</div>
@@ -56,8 +67,8 @@ $dinoai_header_tagline = __( 'A basic audit of available WordPress data. This is
 			</div>
 		</div>
 
-		<?php require DINOAI_PATH . 'admin/views/partials/sidebar.php'; ?>
+		<?php require DINOAI_AUDIT_PATH . 'admin/views/partials/sidebar.php'; ?>
 	</div>
 
-	<?php require DINOAI_PATH . 'admin/views/partials/footer.php'; ?>
+	<?php require DINOAI_AUDIT_PATH . 'admin/views/partials/footer.php'; ?>
 </div>

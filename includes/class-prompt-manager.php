@@ -2,10 +2,10 @@
 /**
  * Centralized prompt templates.
  *
- * @package WPDINO\DinoAI
+ * @package WPDINO\DinoAIAudit
  */
 
-namespace WPDINO\DinoAI;
+namespace WPDINO\DinoAIAudit;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -30,8 +30,8 @@ class Prompt_Manager {
 
 		if ( ! isset( $templates[ $prompt_key ] ) ) {
 			return new \WP_Error(
-				'dinoai_unknown_prompt',
-				__( 'DinoAI could not complete the request.', 'dinoai' )
+				'dinoai_audit_unknown_prompt',
+				__( 'DinoAI Audit could not complete the request.', 'dinoai-audit' )
 			);
 		}
 
@@ -46,7 +46,7 @@ class Prompt_Manager {
 		 * @param string               $prompt_key Prompt identifier.
 		 * @param array<string, mixed> $context    Context data.
 		 */
-		return apply_filters( 'dinoai_prompt', $prompt, $prompt_key, $context );
+		return apply_filters( 'dinoai_audit_prompt', $prompt, $prompt_key, $context );
 	}
 
 	/**
@@ -73,7 +73,7 @@ class Prompt_Manager {
 		 * @param string[] $structured Prompt keys.
 		 * @param string   $prompt_key Current key.
 		 */
-		$structured = apply_filters( 'dinoai_structured_prompts', $structured, $prompt_key );
+		$structured = apply_filters( 'dinoai_audit_structured_prompts', $structured, $prompt_key );
 
 		return in_array( $prompt_key, $structured, true );
 	}
@@ -163,7 +163,7 @@ Findings:
 		 *
 		 * @param array<string, string> $templates Prompt key => template.
 		 */
-		return apply_filters( 'dinoai_prompt_templates', $templates );
+		return apply_filters( 'dinoai_audit_prompt_templates', $templates );
 	}
 
 	/**

@@ -2,15 +2,15 @@
 /**
  * Basic site audit.
  *
- * @package WPDINO\DinoAI
+ * @package WPDINO\DinoAIAudit
  */
 
-namespace WPDINO\DinoAI\Modules;
+namespace WPDINO\DinoAIAudit\Modules;
 
 defined( 'ABSPATH' ) || exit;
 
-use WPDINO\DinoAI\Loader;
-use WPDINO\DinoAI\Plugin;
+use WPDINO\DinoAIAudit\Loader;
+use WPDINO\DinoAIAudit\Plugin;
 
 /**
  * Deterministic WordPress checks with a simple score.
@@ -25,6 +25,13 @@ class Site_Audit {
 	 * @var int
 	 */
 	const SAMPLE_SIZE = 100;
+
+	/**
+	 * Maximum affected items listed on a finding.
+	 *
+	 * @var int
+	 */
+	const SAMPLE_LIMIT = 8;
 
 	/**
 	 * Plugin instance.
@@ -116,16 +123,55 @@ class Site_Audit {
 			}
 		}
 
+		$issues = $this->hydrate_titles( $issues );
 		$scored = $this->score( $issues );
+		$screen = self::screen();
 
 		$scored['generated_at'] = time();
-		$scored['disclaimer']   = __( 'This is a basic audit of available WordPress data. It is not a complete security, accessibility, SEO, or performance audit.', 'dinoai' );
+		$scored['disclaimer']   = isset( $screen['disclaimer'] ) ? (string) $screen['disclaimer'] : '';
 		$scored['sampled']      = true;
 		$scored['theme']        = wp_get_theme()->get( 'Name' );
 		$scored['php_version']  = PHP_VERSION;
 		$scored['wp_version']   = get_bloginfo( 'version' );
+		$scored['advanced']     = ! empty( $screen['advanced'] );
 
 		return $scored;
+	}
+
+	/**
+	 * Copy for the audit screen. Pro replaces this when Advanced Audit is on.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return array<string, mixed>
+	 */
+	public static function screen() {
+		$defaults = array(
+			'tagline'     => __( 'A basic audit of available WordPress data. This is not a complete security, accessibility, SEO, or performance audit.', 'dinoai-audit' ),
+			'heading'     => __( 'Site health', 'dinoai-audit' ),
+			'description' => __( 'A readable score, category breakdown, and clear next steps from data already on this site.', 'dinoai-audit' ),
+			'button'      => __( 'Run basic audit', 'dinoai-audit' ),
+			'running'     => __( 'Running basic audit…', 'dinoai-audit' ),
+			'empty'       => __( 'Run a basic audit to see your site score, category breakdown, and recommended next steps.', 'dinoai-audit' ),
+			'disclaimer'  => __( 'This is a basic audit of available WordPress data. It is not a complete security, accessibility, SEO, or performance audit.', 'dinoai-audit' ),
+			'badge'       => '',
+			'advanced'    => false,
+		);
+
+		/**
+		 * Filters audit screen copy and whether Advanced Audit is active.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param array<string, mixed> $defaults Screen labels.
+		 */
+		$screen = apply_filters( 'dinoai_audit_screen', $defaults );
+
+		if ( ! is_array( $screen ) ) {
+			return $defaults;
+		}
+
+		return wp_parse_args( $screen, $defaults );
 	}
 
 	/**
@@ -144,9 +190,9 @@ class Site_Audit {
 				'homepage_title_missing',
 				'seo',
 				'error',
-				__( 'Homepage title is missing', 'dinoai' ),
-				__( 'The site title is empty.', 'dinoai' ),
-				__( 'Set a clear site title in Settings → General.', 'dinoai' )
+				__( 'Homepage title is missing', 'dinoai-audit' ),
+				__( 'The site title is empty.', 'dinoai-audit' ),
+				__( 'Set a clear site title in Settings → General.', 'dinoai-audit' )
 			);
 		}
 
@@ -155,14 +201,14 @@ class Site_Audit {
 				'homepage_title_length',
 				'seo',
 				'notice',
-				__( 'Homepage title length may be unhelpful', 'dinoai' ),
+				__( 'Homepage title length may be unhelpful', 'dinoai-audit' ),
 				sprintf(
 					/* translators: 1: title, 2: character count */
-					__( 'The site title “%1$s” is %2$d characters.', 'dinoai' ),
+					__( 'The site title “%1$s” is %2$d characters.', 'dinoai-audit' ),
 					$title,
 					$len
 				),
-				__( 'Aim for a clear site title that describes the site in a few words.', 'dinoai' )
+				__( 'Aim for a clear site title that describes the site in a few words.', 'dinoai-audit' )
 			);
 		}
 
@@ -184,9 +230,9 @@ class Site_Audit {
 				'homepage_description_missing',
 				'seo',
 				'warning',
-				__( 'Homepage description is missing', 'dinoai' ),
-				__( 'No site tagline is set. Dedicated SEO plugins may still provide a meta description.', 'dinoai' ),
-				__( 'Add a short tagline in Settings → General, or generate a meta description with DinoAI on the homepage.', 'dinoai' )
+				__( 'Homepage description is missing', 'dinoai-audit' ),
+				__( 'No site tagline is set. Dedicated SEO plugins may still provide a meta description.', 'dinoai-audit' ),
+				__( 'Add a short tagline in Settings → General, or generate a meta description with DinoAI Audit on the homepage.', 'dinoai-audit' )
 			);
 		}
 
@@ -232,18 +278,16 @@ class Site_Audit {
 			'missing_titles',
 			'seo',
 			'warning',
-			__( 'Some posts or pages have no useful title', 'dinoai' ),
+			__( 'Some posts or pages have no useful title', 'dinoai-audit' ),
 			sprintf(
 				/* translators: %d: number of items */
-				_n( '%d sampled item has a missing or unhelpful title.', '%d sampled items have a missing or unhelpful title.', count( $missing ), 'dinoai' ),
+				_n( '%d sampled item has a missing or unhelpful title.', '%d sampled items have a missing or unhelpful title.', count( $missing ), 'dinoai-audit' ),
 				count( $missing )
 			),
-			__( 'Give each published item a descriptive title.', 'dinoai' )
+			__( 'Give each published item a descriptive title.', 'dinoai-audit' )
 		);
-		$issue['count']   = count( $missing );
-		$issue['samples'] = array_slice( $missing, 0, 5 );
 
-		return $issue;
+		return $this->with_samples( $issue, $missing );
 	}
 
 	/**
@@ -259,9 +303,9 @@ class Site_Audit {
 				'not_indexable',
 				'seo',
 				'error',
-				__( 'Search engines are discouraged', 'dinoai' ),
-				__( 'Settings → Reading is set to discourage search engines from indexing this site.', 'dinoai' ),
-				__( 'If this site should appear in search results, turn that setting off.', 'dinoai' )
+				__( 'Search engines are discouraged', 'dinoai-audit' ),
+				__( 'Settings → Reading is set to discourage search engines from indexing this site.', 'dinoai-audit' ),
+				__( 'If this site should appear in search results, turn that setting off.', 'dinoai-audit' )
 			);
 		}
 
@@ -305,18 +349,16 @@ class Site_Audit {
 			'short_posts',
 			'content',
 			'notice',
-			__( 'Some posts are very short', 'dinoai' ),
+			__( 'Some posts are very short', 'dinoai-audit' ),
 			sprintf(
 				/* translators: %d: number of posts */
-				_n( '%d sampled post has fewer than 150 words.', '%d sampled posts have fewer than 150 words.', count( $short ), 'dinoai' ),
+				_n( '%d sampled post has fewer than 150 words.', '%d sampled posts have fewer than 150 words.', count( $short ), 'dinoai-audit' ),
 				count( $short )
 			),
-			__( 'Expand thin posts where the topic needs more explanation. Use DinoAI Expand as a starting point, then edit.', 'dinoai' )
+			__( 'Expand thin posts where the topic needs more explanation. Use DinoAI Audit Expand as a starting point, then edit.', 'dinoai-audit' )
 		);
-		$issue['count']   = count( $short );
-		$issue['samples'] = array_slice( $short, 0, 5 );
 
-		return $issue;
+		return $this->with_samples( $issue, $short );
 	}
 
 	/**
@@ -354,18 +396,16 @@ class Site_Audit {
 			'missing_featured_images',
 			'content',
 			'notice',
-			__( 'Several posts are missing featured images', 'dinoai' ),
+			__( 'Several posts are missing featured images', 'dinoai-audit' ),
 			sprintf(
 				/* translators: %d: number of posts */
-				_n( '%d sampled post has no featured image.', '%d sampled posts have no featured image.', $count, 'dinoai' ),
+				_n( '%d sampled post has no featured image.', '%d sampled posts have no featured image.', $count, 'dinoai-audit' ),
 				$count
 			),
-			__( 'Add featured images to posts that appear in archives and shares.', 'dinoai' )
+			__( 'Add featured images to posts that appear in archives and shares.', 'dinoai-audit' )
 		);
-		$issue['count']   = $count;
-		$issue['samples'] = array_slice( array_map( 'intval', $query->posts ), 0, 5 );
 
-		return $issue;
+		return $this->with_samples( $issue, $query->posts );
 	}
 
 	/**
@@ -403,18 +443,16 @@ class Site_Audit {
 			'empty_excerpts',
 			'content',
 			'notice',
-			__( 'Many posts have empty excerpts', 'dinoai' ),
+			__( 'Many posts have empty excerpts', 'dinoai-audit' ),
 			sprintf(
 				/* translators: %d: number of posts */
-				__( '%d sampled posts rely on an automatic excerpt.', 'dinoai' ),
+				__( '%d sampled posts rely on an automatic excerpt.', 'dinoai-audit' ),
 				count( $empty )
 			),
-			__( 'Write a short excerpt when the first paragraph is not a good summary. DinoAI Summarize can help.', 'dinoai' )
+			__( 'Write a short excerpt when the first paragraph is not a good summary. DinoAI Audit Summarize can help.', 'dinoai-audit' )
 		);
-		$issue['count']   = count( $empty );
-		$issue['samples'] = array_slice( $empty, 0, 5 );
 
-		return $issue;
+		return $this->with_samples( $issue, $empty );
 	}
 
 	/**
@@ -464,18 +502,16 @@ class Site_Audit {
 			return null;
 		}
 
-		$issue            = $this->issue(
+		$issue = $this->issue(
 			'duplicate_titles',
 			'content',
 			'warning',
-			__( 'Duplicate or very similar titles were found', 'dinoai' ),
-			__( 'Some published posts or pages share the same title in the sampled content.', 'dinoai' ),
-			__( 'Give each item a distinct title so readers and search engines can tell them apart.', 'dinoai' )
+			__( 'Duplicate or very similar titles were found', 'dinoai-audit' ),
+			__( 'Some published posts or pages share the same title in the sampled content.', 'dinoai-audit' ),
+			__( 'Give each item a distinct title so readers and search engines can tell them apart.', 'dinoai-audit' )
 		);
-		$issue['count']   = count( $dupes );
-		$issue['samples'] = array_slice( $dupes, 0, 5 );
 
-		return $issue;
+		return $this->with_samples( $issue, $dupes );
 	}
 
 	/**
@@ -515,18 +551,16 @@ class Site_Audit {
 			'missing_alt',
 			'accessibility',
 			'warning',
-			__( 'Images are missing alt text', 'dinoai' ),
+			__( 'Images are missing alt text', 'dinoai-audit' ),
 			sprintf(
 				/* translators: %d: number of images */
-				_n( '%d sampled image has no alt text.', '%d sampled images have no alt text.', count( $missing ), 'dinoai' ),
+				_n( '%d sampled image has no alt text.', '%d sampled images have no alt text.', count( $missing ), 'dinoai-audit' ),
 				count( $missing )
 			),
-			__( 'Add concise alt text that describes the meaningful content of each image. DinoAI can generate a draft for you to confirm.', 'dinoai' )
+			__( 'Add concise alt text that describes the meaningful content of each image. DinoAI Audit can generate a draft for you to confirm.', 'dinoai-audit' )
 		);
-		$issue['count']   = count( $missing );
-		$issue['samples'] = array_slice( $missing, 0, 5 );
 
-		return $issue;
+		return $this->with_samples( $issue, $missing );
 	}
 
 	/**
@@ -564,18 +598,16 @@ class Site_Audit {
 			'empty_links',
 			'accessibility',
 			'warning',
-			__( 'Empty links were detected', 'dinoai' ),
+			__( 'Empty links were detected', 'dinoai-audit' ),
 			sprintf(
 				/* translators: %d: number of items */
-				_n( '%d sampled item appears to contain a link with no accessible text.', '%d sampled items appear to contain links with no accessible text.', count( $found ), 'dinoai' ),
+				_n( '%d sampled item appears to contain a link with no accessible text.', '%d sampled items appear to contain links with no accessible text.', count( $found ), 'dinoai-audit' ),
 				count( $found )
 			),
-			__( 'Give every link visible or alternative text that describes its destination.', 'dinoai' )
+			__( 'Give every link visible or alternative text that describes its destination.', 'dinoai-audit' )
 		);
-		$issue['count']   = count( $found );
-		$issue['samples'] = array_slice( $found, 0, 5 );
 
-		return $issue;
+		return $this->with_samples( $issue, $found );
 	}
 
 	/**
@@ -607,14 +639,16 @@ class Site_Audit {
 
 		foreach ( $levels as $level ) {
 			if ( $level > $prev + 1 ) {
-				return $this->issue(
+				$issue = $this->issue(
 					'heading_hierarchy',
 					'accessibility',
 					'notice',
-					__( 'Heading hierarchy may skip levels', 'dinoai' ),
-					__( 'The homepage content appears to skip heading levels. This is a potential issue detected in sampled markup.', 'dinoai' ),
-					__( 'Use headings in order (for example h2 then h3) so the page structure is easier to follow.', 'dinoai' )
+					__( 'Heading hierarchy may skip levels', 'dinoai-audit' ),
+					__( 'The homepage content appears to skip heading levels. This is a potential issue detected in sampled markup.', 'dinoai-audit' ),
+					__( 'Use headings in order (for example h2 then h3) so the page structure is easier to follow.', 'dinoai-audit' )
 				);
+
+				return $this->with_samples( $issue, array( $page_id ) );
 			}
 
 			$prev = $level;
@@ -640,13 +674,13 @@ class Site_Audit {
 						'wordpress_outdated',
 						'technical',
 						'warning',
-						__( 'WordPress is not on the latest version', 'dinoai' ),
+						__( 'WordPress is not on the latest version', 'dinoai-audit' ),
 						sprintf(
 							/* translators: %s: current WordPress version */
-							__( 'This site is running WordPress %s and a newer version is available.', 'dinoai' ),
+							__( 'This site is running WordPress %s and a newer version is available.', 'dinoai-audit' ),
 							get_bloginfo( 'version' )
 						),
-						__( 'Update WordPress from Dashboard → Updates after taking a backup.', 'dinoai' )
+						__( 'Update WordPress from Dashboard → Updates after taking a backup.', 'dinoai-audit' )
 					);
 				}
 			}
@@ -668,13 +702,13 @@ class Site_Audit {
 				'php_outdated',
 				'technical',
 				'warning',
-				__( 'PHP version is older than recommended', 'dinoai' ),
+				__( 'PHP version is older than recommended', 'dinoai-audit' ),
 				sprintf(
 					/* translators: %s: PHP version */
-					__( 'This site is running PHP %s.', 'dinoai' ),
+					__( 'This site is running PHP %s.', 'dinoai-audit' ),
 					PHP_VERSION
 				),
-				__( 'Ask your host about upgrading PHP to a currently supported version.', 'dinoai' )
+				__( 'Ask your host about upgrading PHP to a currently supported version.', 'dinoai-audit' )
 			);
 		}
 
@@ -703,9 +737,9 @@ class Site_Audit {
 			'https',
 			'technical',
 			'warning',
-			__( 'The site URL is not using HTTPS', 'dinoai' ),
-			__( 'The WordPress home URL does not start with https://.', 'dinoai' ),
-			__( 'Install an SSL certificate and update the WordPress Address in Settings → General.', 'dinoai' )
+			__( 'The site URL is not using HTTPS', 'dinoai-audit' ),
+			__( 'The WordPress home URL does not start with https://.', 'dinoai-audit' ),
+			__( 'Install an SSL certificate and update the WordPress Address in Settings → General.', 'dinoai-audit' )
 		);
 	}
 
@@ -730,13 +764,13 @@ class Site_Audit {
 				'plugin_count',
 				'technical',
 				'notice',
-				__( 'A large number of plugins are installed', 'dinoai' ),
+				__( 'A large number of plugins are installed', 'dinoai-audit' ),
 				sprintf(
 					/* translators: %d: plugin count */
-					__( '%d plugins are installed. This is not necessarily a problem, but unused plugins add maintenance cost.', 'dinoai' ),
+					__( '%d plugins are installed. This is not necessarily a problem, but unused plugins add maintenance cost.', 'dinoai-audit' ),
 					$count
 				),
-				__( 'Remove plugins you no longer need.', 'dinoai' )
+				__( 'Remove plugins you no longer need.', 'dinoai-audit' )
 			);
 		}
 
@@ -752,13 +786,13 @@ class Site_Audit {
 				'outdated_plugins',
 				'technical',
 				'warning',
-				__( 'Some plugins are outdated', 'dinoai' ),
+				__( 'Some plugins are outdated', 'dinoai-audit' ),
 				sprintf(
 					/* translators: %d: number of plugins */
-					_n( '%d installed plugin has an available update.', '%d installed plugins have available updates.', $outdated, 'dinoai' ),
+					_n( '%d installed plugin has an available update.', '%d installed plugins have available updates.', $outdated, 'dinoai-audit' ),
 					$outdated
 				),
-				__( 'Review and update plugins from Dashboard → Updates.', 'dinoai' )
+				__( 'Review and update plugins from Dashboard → Updates.', 'dinoai-audit' )
 			);
 			$issue['count'] = $outdated;
 			$issues[]       = $issue;
@@ -782,9 +816,9 @@ class Site_Audit {
 				'plain_permalinks',
 				'technical',
 				'notice',
-				__( 'Plain permalinks are in use', 'dinoai' ),
-				__( 'The site is using query-string permalinks.', 'dinoai' ),
-				__( 'Choose a readable permalink structure in Settings → Permalinks.', 'dinoai' )
+				__( 'Plain permalinks are in use', 'dinoai-audit' ),
+				__( 'The site is using query-string permalinks.', 'dinoai-audit' ),
+				__( 'Choose a readable permalink structure in Settings → Permalinks.', 'dinoai-audit' )
 			);
 		}
 
@@ -838,7 +872,215 @@ class Site_Audit {
 			'categories' => $categories,
 			'issues'     => $issues,
 			'count'      => count( $issues ),
-			'label'      => __( 'DinoAI Site Score', 'dinoai' ),
+			'label'      => __( 'DinoAI Audit Site Score', 'dinoai-audit' ),
+		);
+	}
+
+	/**
+	 * Resolves titles and optional edit URLs for display.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array<int, array<string, mixed>> $issues Issues.
+	 * @return array<int, array<string, mixed>>
+	 */
+	public function prepare_issues( array $issues ) {
+		$issues = $this->hydrate_titles( $issues );
+		$issues = $this->attach_edit_urls( $issues );
+
+		return $this->attach_fixes( $issues );
+	}
+
+	/**
+	 * Attaches sample IDs to an issue.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array<string, mixed> $issue Issue.
+	 * @param array<int, mixed>    $ids   Post IDs.
+	 * @return array<string, mixed>
+	 */
+	protected function with_samples( array $issue, array $ids ) {
+		$clean = array();
+
+		foreach ( $ids as $id ) {
+			$id = (int) $id;
+
+			if ( $id > 0 ) {
+				$clean[] = $id;
+			}
+		}
+
+		$clean = array_values( array_unique( $clean ) );
+
+		$issue['count']   = count( $clean );
+		$issue['samples'] = array_slice( $clean, 0, self::SAMPLE_LIMIT );
+
+		return $issue;
+	}
+
+	/**
+	 * Turns sample IDs into titled items. Does not add edit links.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array<int, array<string, mixed>> $issues Issues.
+	 * @return array<int, array<string, mixed>>
+	 */
+	protected function hydrate_titles( array $issues ) {
+		foreach ( $issues as $index => $issue ) {
+			if ( ! is_array( $issue ) ) {
+				continue;
+			}
+
+			$samples = isset( $issue['samples'] ) && is_array( $issue['samples'] ) ? $issue['samples'] : array();
+			$items   = array();
+
+			foreach ( $samples as $post_id ) {
+				$item = $this->item_from_id( (int) $post_id );
+
+				if ( $item ) {
+					$items[] = $item;
+				}
+			}
+
+			$issue['items']   = $items;
+			$issues[ $index ] = $issue;
+		}
+
+		return $issues;
+	}
+
+	/**
+	 * Adds Pro edit URLs when a filter provides them.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array<int, array<string, mixed>> $issues Issues.
+	 * @return array<int, array<string, mixed>>
+	 */
+	protected function attach_edit_urls( array $issues ) {
+		foreach ( $issues as $index => $issue ) {
+			if ( ! is_array( $issue ) || empty( $issue['items'] ) || ! is_array( $issue['items'] ) ) {
+				continue;
+			}
+
+			foreach ( $issue['items'] as $item_index => $item ) {
+				if ( ! is_array( $item ) ) {
+					continue;
+				}
+
+				$post_id = isset( $item['id'] ) ? (int) $item['id'] : 0;
+
+				/**
+				 * Filters the edit URL for an audit sample item.
+				 *
+				 * This plugin leaves this empty so titles stay unlinked. When DinoAI Audit Pro
+				 * is active, an admin edit URL is added.
+				 *
+				 * @since 1.0.0
+				 *
+				 * @param string               $url     Edit URL.
+				 * @param int                  $post_id Post ID.
+				 * @param array<string, mixed> $issue   Issue.
+				 */
+				$url = apply_filters( 'dinoai_audit_sample_edit_url', '', $post_id, $issue );
+
+				if ( ( ! is_string( $url ) || '' === $url ) && defined( 'DINOAI_AUDIT_PRO_VERSION' ) && $post_id > 0 && current_user_can( 'edit_post', $post_id ) ) {
+					$link = get_edit_post_link( $post_id, 'raw' );
+					$url  = is_string( $link ) ? $link : '';
+				}
+
+				if ( is_string( $url ) && '' !== $url ) {
+					$item['edit_url'] = esc_url_raw( $url );
+				} else {
+					unset( $item['edit_url'] );
+				}
+
+				$issue['items'][ $item_index ] = $item;
+			}
+
+			$issues[ $index ] = $issue;
+		}
+
+		return $issues;
+	}
+
+	/**
+	 * Attaches a solution screen URL from the issue id.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array<int, array<string, mixed>> $issues Issues.
+	 * @return array<int, array<string, mixed>>
+	 */
+	protected function attach_fixes( array $issues ) {
+		foreach ( $issues as $index => $issue ) {
+			if ( ! is_array( $issue ) ) {
+				continue;
+			}
+
+			$id  = isset( $issue['id'] ) ? (string) $issue['id'] : '';
+			$fix = $this->fix_for( $id );
+
+			/**
+			 * Filters the solution link for an audit finding.
+			 *
+			 * @since 1.0.0
+			 *
+			 * @param array{url: string, label: string} $fix   URL and label.
+			 * @param string                            $id    Issue id.
+			 * @param array<string, mixed>              $issue Issue.
+			 */
+			$fix = apply_filters( 'dinoai_audit_issue_fix', $fix, $id, $issue );
+
+			if ( is_array( $fix ) ) {
+				$issue['action_url']   = isset( $fix['url'] ) ? esc_url_raw( (string) $fix['url'] ) : '';
+				$issue['action_label'] = isset( $fix['label'] ) ? sanitize_text_field( (string) $fix['label'] ) : '';
+			}
+
+			$issues[ $index ] = $issue;
+		}
+
+		return $issues;
+	}
+
+	/**
+	 * Builds a titled sample item from a post ID.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param int $post_id Post ID.
+	 * @return array<string, mixed>|null
+	 */
+	protected function item_from_id( $post_id ) {
+		$post_id = (int) $post_id;
+
+		if ( $post_id < 1 ) {
+			return null;
+		}
+
+		$post = get_post( $post_id );
+
+		if ( ! $post instanceof \WP_Post ) {
+			return null;
+		}
+
+		$title = get_the_title( $post );
+		$title = is_string( $title ) ? trim( $title ) : '';
+
+		if ( '' === $title ) {
+			$title = sprintf(
+				/* translators: %d: post ID */
+				__( '(no title) #%d', 'dinoai-audit' ),
+				$post_id
+			);
+		}
+
+		return array(
+			'id'    => $post_id,
+			'title' => $title,
+			'type'  => $post->post_type,
 		);
 	}
 
@@ -856,6 +1098,8 @@ class Site_Audit {
 	 * @return array<string, mixed>
 	 */
 	protected function issue( $id, $category, $severity, $title, $description, $recommendation ) {
+		$fix = $this->fix_for( $id );
+
 		return array(
 			'id'             => $id,
 			'category'       => $category,
@@ -863,8 +1107,77 @@ class Site_Audit {
 			'title'          => $title,
 			'description'    => $description,
 			'recommendation' => $recommendation,
+			'action_url'     => $fix['url'],
+			'action_label'   => $fix['label'],
 			'count'          => 1,
 			'samples'        => array(),
+			'items'          => array(),
+		);
+	}
+
+	/**
+	 * Admin screen that fixes an issue, when one exists.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $id Issue id.
+	 * @return array{url: string, label: string}
+	 */
+	protected function fix_for( $id ) {
+		$fixes = array(
+			'homepage_title_missing'       => array(
+				'url'   => admin_url( 'options-general.php' ),
+				'label' => __( 'Open Settings → General', 'dinoai-audit' ),
+			),
+			'homepage_title_length'        => array(
+				'url'   => admin_url( 'options-general.php' ),
+				'label' => __( 'Open Settings → General', 'dinoai-audit' ),
+			),
+			'homepage_description_missing' => array(
+				'url'   => admin_url( 'options-general.php' ),
+				'label' => __( 'Open Settings → General', 'dinoai-audit' ),
+			),
+			'not_indexable'                => array(
+				'url'   => admin_url( 'options-reading.php' ),
+				'label' => __( 'Open Settings → Reading', 'dinoai-audit' ),
+			),
+			'missing_alt'                  => array(
+				'url'   => admin_url( 'upload.php' ),
+				'label' => __( 'Open Media Library', 'dinoai-audit' ),
+			),
+			'wordpress_outdated'           => array(
+				'url'   => admin_url( 'update-core.php' ),
+				'label' => __( 'Open Dashboard → Updates', 'dinoai-audit' ),
+			),
+			'php_outdated'                 => array(
+				'url'   => admin_url( 'site-health.php' ),
+				'label' => __( 'Open Site Health', 'dinoai-audit' ),
+			),
+			'https'                        => array(
+				'url'   => admin_url( 'options-general.php' ),
+				'label' => __( 'Open Settings → General', 'dinoai-audit' ),
+			),
+			'plugin_count'                 => array(
+				'url'   => admin_url( 'plugins.php' ),
+				'label' => __( 'Open Plugins', 'dinoai-audit' ),
+			),
+			'outdated_plugins'             => array(
+				'url'   => admin_url( 'update-core.php' ),
+				'label' => __( 'Open Dashboard → Updates', 'dinoai-audit' ),
+			),
+			'plain_permalinks'             => array(
+				'url'   => admin_url( 'options-permalink.php' ),
+				'label' => __( 'Open Settings → Permalinks', 'dinoai-audit' ),
+			),
+		);
+
+		if ( isset( $fixes[ $id ] ) ) {
+			return $fixes[ $id ];
+		}
+
+		return array(
+			'url'   => '',
+			'label' => '',
 		);
 	}
 }

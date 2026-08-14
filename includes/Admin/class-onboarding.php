@@ -2,18 +2,18 @@
 /**
  * Lightweight onboarding notice.
  *
- * @package WPDINO\DinoAI
+ * @package WPDINO\DinoAIAudit
  */
 
-namespace WPDINO\DinoAI\Admin;
+namespace WPDINO\DinoAIAudit\Admin;
 
 defined( 'ABSPATH' ) || exit;
 
-use WPDINO\DinoAI\Loader;
-use WPDINO\DinoAI\Settings;
+use WPDINO\DinoAIAudit\Loader;
+use WPDINO\DinoAIAudit\Settings;
 
 /**
- * Shows a dismissible welcome notice until the provider is configured.
+ * Shows a dismissible welcome notice on plugin admin screens until the provider is configured.
  *
  * @since 1.0.0
  */
@@ -24,7 +24,7 @@ class Onboarding {
 	 *
 	 * @var string
 	 */
-	const DISMISS_KEY = 'dinoai_onboarding_dismissed';
+	const DISMISS_KEY = 'dinoai_audit_onboarding_dismissed';
 
 	/**
 	 * Settings.
@@ -54,7 +54,7 @@ class Onboarding {
 	 */
 	public function register( Loader $loader ) {
 		$loader->add_action( 'admin_notices', $this, 'render' );
-		$loader->add_action( 'admin_post_dinoai_dismiss_onboarding', $this, 'dismiss' );
+		$loader->add_action( 'admin_post_dinoai_audit_dismiss_onboarding', $this, 'dismiss' );
 	}
 
 	/**
@@ -79,26 +79,26 @@ class Onboarding {
 
 		$screen = get_current_screen();
 
-		if ( $screen && isset( $screen->id ) && false !== strpos( $screen->id, 'dinoai-settings' ) ) {
+		if ( ! $screen || empty( $screen->id ) || false === strpos( $screen->id, 'dinoai-audit' ) ) {
 			return;
 		}
 
 		$dismiss = wp_nonce_url(
-			admin_url( 'admin-post.php?action=dinoai_dismiss_onboarding' ),
-			'dinoai_dismiss_onboarding'
+			admin_url( 'admin-post.php?action=dinoai_audit_dismiss_onboarding' ),
+			'dinoai_audit_dismiss_onboarding'
 		);
 		?>
-		<div class="notice notice-info dinoai-onboarding">
-			<p><strong><?php esc_html_e( 'Welcome to DinoAI', 'dinoai' ); ?></strong></p>
-			<p><?php esc_html_e( 'Bring practical AI tools into your WordPress workflow.', 'dinoai' ); ?></p>
+		<div class="notice notice-info dinoai-audit-onboarding">
+			<p><strong><?php esc_html_e( 'Welcome to DinoAI Audit', 'dinoai-audit' ); ?></strong></p>
+			<p><?php esc_html_e( 'Bring practical AI tools into your WordPress workflow.', 'dinoai-audit' ); ?></p>
 			<ol>
-				<li><?php esc_html_e( 'Connect your AI provider', 'dinoai' ); ?></li>
-				<li><?php esc_html_e( 'Test the connection', 'dinoai' ); ?></li>
-				<li><?php esc_html_e( 'Start improving your content', 'dinoai' ); ?></li>
+				<li><?php esc_html_e( 'Connect your AI provider', 'dinoai-audit' ); ?></li>
+				<li><?php esc_html_e( 'Test the connection', 'dinoai-audit' ); ?></li>
+				<li><?php esc_html_e( 'Start improving your content', 'dinoai-audit' ); ?></li>
 			</ol>
 			<p>
-				<a class="button button-primary" href="<?php echo esc_url( admin_url( 'admin.php?page=dinoai-settings#provider' ) ); ?>"><?php esc_html_e( 'Configure DinoAI', 'dinoai' ); ?></a>
-				<a class="button" href="<?php echo esc_url( $dismiss ); ?>"><?php esc_html_e( 'Dismiss', 'dinoai' ); ?></a>
+				<a class="button button-primary" href="<?php echo esc_url( admin_url( 'admin.php?page=dinoai-audit-settings#provider' ) ); ?>"><?php esc_html_e( 'Configure DinoAI Audit', 'dinoai-audit' ); ?></a>
+				<a class="button" href="<?php echo esc_url( $dismiss ); ?>"><?php esc_html_e( 'Dismiss', 'dinoai-audit' ); ?></a>
 			</p>
 		</div>
 		<?php
@@ -113,10 +113,10 @@ class Onboarding {
 	 */
 	public function dismiss() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have permission to manage DinoAI.', 'dinoai' ) );
+			wp_die( esc_html__( 'You do not have permission to manage DinoAI Audit.', 'dinoai-audit' ) );
 		}
 
-		check_admin_referer( 'dinoai_dismiss_onboarding' );
+		check_admin_referer( 'dinoai_audit_dismiss_onboarding' );
 
 		update_user_meta( get_current_user_id(), self::DISMISS_KEY, 1 );
 
