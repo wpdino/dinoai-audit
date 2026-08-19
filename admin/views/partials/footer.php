@@ -9,10 +9,10 @@ defined( 'ABSPATH' ) || exit;
 
 use WPDINO\DinoAIAudit\Admin\Admin_Layout;
 
-$home_url    = Admin_Layout::utm_url( 'https://wpdino.com', 'footer_home_link' );
-$docs_url    = Admin_Layout::utm_url( 'https://wpdino.com/docs/dinoai/', 'footer_documentation' );
-$support_url = Admin_Layout::utm_url( 'https://wordpress.org/support/plugin/dinoai/', 'footer_support' );
-$brand_url   = Admin_Layout::utm_url( 'https://wpdino.com', 'footer_brand_link' );
+$dinoai_audit_home_url    = Admin_Layout::utm_url( 'https://wpdino.com', 'footer_home_link' );
+$dinoai_audit_docs_url    = Admin_Layout::utm_url( 'https://wpdino.com/docs/dinoai/', 'footer_documentation' );
+$dinoai_audit_support_url = Admin_Layout::utm_url( 'https://wordpress.org/support/plugin/dinoai/', 'footer_support' );
+$dinoai_audit_brand_url   = Admin_Layout::utm_url( 'https://wpdino.com', 'footer_brand_link' );
 ?>
 <div class="wpdino-footer">
 	<div class="wpdino-footer-content">
@@ -24,7 +24,7 @@ $brand_url   = Admin_Layout::utm_url( 'https://wpdino.com', 'footer_brand_link' 
 						/* translators: 1: plugin version, 2: WPDINO website link */
 						__( 'DinoAI Audit v%1$s by %2$s', 'dinoai-audit' ),
 						esc_html( DINOAI_AUDIT_VERSION ),
-						'<a href="' . esc_url( $brand_url ) . '" target="_blank" rel="noopener noreferrer">WPDINO</a>'
+						'<a href="' . esc_url( $dinoai_audit_brand_url ) . '" target="_blank" rel="noopener noreferrer">WPDINO</a>'
 					),
 					array(
 						'a' => array(
@@ -39,11 +39,11 @@ $brand_url   = Admin_Layout::utm_url( 'https://wpdino.com', 'footer_brand_link' 
 		</div>
 		<div class="wpdino-footer-right">
 			<div class="wpdino-footer-links">
-				<a href="<?php echo esc_url( $home_url ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'WPDINO', 'dinoai-audit' ); ?></a>
+				<a href="<?php echo esc_url( $dinoai_audit_home_url ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'WPDINO', 'dinoai-audit' ); ?></a>
 				<span>|</span>
-				<a href="<?php echo esc_url( $docs_url ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Documentation', 'dinoai-audit' ); ?></a>
+				<a href="<?php echo esc_url( $dinoai_audit_docs_url ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Documentation', 'dinoai-audit' ); ?></a>
 				<span>|</span>
-				<a href="<?php echo esc_url( $support_url ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Support', 'dinoai-audit' ); ?></a>
+				<a href="<?php echo esc_url( $dinoai_audit_support_url ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Support', 'dinoai-audit' ); ?></a>
 			</div>
 			<div class="wpdino-footer-social">
 				<a href="https://www.facebook.com/wpdinocom" target="_blank" rel="noopener noreferrer" aria-label="<?php esc_attr_e( 'Follow WPDINO on Facebook', 'dinoai-audit' ); ?>">

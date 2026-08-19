@@ -9,9 +9,9 @@ defined( 'ABSPATH' ) || exit;
 
 use WPDINO\DinoAIAudit\Admin\Admin_Layout;
 
-$home_url    = Admin_Layout::utm_url( 'https://wpdino.com', 'about_home' );
-$docs_url    = Admin_Layout::utm_url( 'https://wpdino.com/docs/dinoai/', 'about_documentation' );
-$support_url = Admin_Layout::utm_url( 'https://wpdino.com/support/', 'about_support' );
+$dinoai_audit_home_url    = Admin_Layout::utm_url( 'https://wpdino.com', 'about_home' );
+$dinoai_audit_docs_url    = Admin_Layout::utm_url( 'https://wpdino.com/docs/dinoai/', 'about_documentation' );
+$dinoai_audit_support_url = Admin_Layout::utm_url( 'https://wpdino.com/support/', 'about_support' );
 ?>
 <div class="wpdino-section">
 	<h3 class="wpdino-section-title">
@@ -65,11 +65,11 @@ $support_url = Admin_Layout::utm_url( 'https://wpdino.com/support/', 'about_supp
 </div>
 
 <p class="dinoai-audit-about-links">
-	<a href="<?php echo esc_url( $home_url ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'WPDINO', 'dinoai-audit' ); ?></a>
+	<a href="<?php echo esc_url( $dinoai_audit_home_url ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'WPDINO', 'dinoai-audit' ); ?></a>
 	<span aria-hidden="true"> · </span>
-	<a href="<?php echo esc_url( $docs_url ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Documentation', 'dinoai-audit' ); ?></a>
+	<a href="<?php echo esc_url( $dinoai_audit_docs_url ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Documentation', 'dinoai-audit' ); ?></a>
 	<span aria-hidden="true"> · </span>
-	<a href="<?php echo esc_url( $support_url ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Support', 'dinoai-audit' ); ?></a>
+	<a href="<?php echo esc_url( $dinoai_audit_support_url ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Support', 'dinoai-audit' ); ?></a>
 </p>
 
 <div class="dinoai-audit-privacy-card">
@@ -77,8 +77,10 @@ $support_url = Admin_Layout::utm_url( 'https://wpdino.com/support/', 'about_supp
 		<span class="dashicons dashicons-lock"></span>
 	</span>
 	<h3><?php esc_html_e( 'Privacy', 'dinoai-audit' ); ?></h3>
-	<p><?php esc_html_e( 'When you run a DinoAI Audit action, the selected content is sent to the configured AI provider using your API key. Nothing is sent until you start an action. DinoAI Audit stores usage counts on this site, not full prompts or responses.', 'dinoai-audit' ); ?></p>
+	<p><?php esc_html_e( 'DinoAI Audit does not collect visitor data. When a logged-in user starts an action or tests the connection, selected text, SEO source text, or an image used for alt text is sent to OpenAI with your API key. The basic site audit stays on this site. Usage counts are stored here; full prompts and responses are not.', 'dinoai-audit' ); ?></p>
 	<p>
-		<a href="https://openai.com/policies/privacy-policy" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'OpenAI privacy policy', 'dinoai-audit' ); ?></a>
+		<a href="https://openai.com/policies/terms-of-use" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'OpenAI Terms of Use', 'dinoai-audit' ); ?></a>
+		<span aria-hidden="true"> · </span>
+		<a href="https://openai.com/policies/privacy-policy" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'OpenAI Privacy Policy', 'dinoai-audit' ); ?></a>
 	</p>
 </div>

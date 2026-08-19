@@ -9,7 +9,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-$last = ! empty( $usage['last_request'] ) ? wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), (int) $usage['last_request'] ) : __( 'Never', 'dinoai-audit' );
+$dinoai_audit_last = ! empty( $usage['last_request'] ) ? wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), (int) $usage['last_request'] ) : __( 'Never', 'dinoai-audit' );
 ?>
 <div class="wpdino-section">
 	<h3 class="wpdino-section-title">
@@ -32,7 +32,7 @@ $last = ! empty( $usage['last_request'] ) ? wp_date( get_option( 'date_format' )
 			<span class="dashicons dashicons-clock"></span>
 		</span>
 		<span class="dinoai-audit-stat-label"><?php esc_html_e( 'Last request', 'dinoai-audit' ); ?></span>
-		<strong class="dinoai-audit-stat-value dinoai-audit-stat-value--small"><?php echo esc_html( $last ); ?></strong>
+		<strong class="dinoai-audit-stat-value dinoai-audit-stat-value--small"><?php echo esc_html( $dinoai_audit_last ); ?></strong>
 	</div>
 	<div class="dinoai-audit-stat">
 		<span class="dinoai-audit-tile-icon" aria-hidden="true">
@@ -63,10 +63,10 @@ $last = ! empty( $usage['last_request'] ) ? wp_date( get_option( 'date_format' )
 
 <h3 class="wpdino-section-title dinoai-audit-usage-subtitle"><?php esc_html_e( 'By module', 'dinoai-audit' ); ?></h3>
 <ul class="dinoai-audit-module-usage">
-	<?php foreach ( $usage['by_module'] as $module => $count ) : ?>
+	<?php foreach ( $usage['by_module'] as $dinoai_audit_module => $dinoai_audit_count ) : ?>
 		<li>
-			<span><?php echo esc_html( $module ); ?></span>
-			<strong><?php echo esc_html( number_format_i18n( (int) $count ) ); ?></strong>
+			<span><?php echo esc_html( $dinoai_audit_module ); ?></span>
+			<strong><?php echo esc_html( number_format_i18n( (int) $dinoai_audit_count ) ); ?></strong>
 		</li>
 	<?php endforeach; ?>
 </ul>

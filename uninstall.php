@@ -23,15 +23,15 @@ function dinoai_audit_delete_site_options() {
 }
 
 if ( is_multisite() ) {
-	$site_ids = get_sites(
+	$dinoai_audit_site_ids = get_sites(
 		array(
 			'fields' => 'ids',
 			'number' => 500,
 		)
 	);
 
-	foreach ( $site_ids as $site_id ) {
-		switch_to_blog( (int) $site_id );
+	foreach ( $dinoai_audit_site_ids as $dinoai_audit_site_id ) {
+		switch_to_blog( (int) $dinoai_audit_site_id );
 		dinoai_audit_delete_site_options();
 		restore_current_blog();
 	}
@@ -39,7 +39,7 @@ if ( is_multisite() ) {
 	dinoai_audit_delete_site_options();
 }
 
-$users = get_users(
+$dinoai_audit_users = get_users(
 	array(
 		'fields'       => 'ids',
 		'meta_key'     => 'dinoai_audit_onboarding_dismissed', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- uninstall cleanup.
@@ -47,6 +47,6 @@ $users = get_users(
 	)
 );
 
-foreach ( $users as $user_id ) {
-	delete_user_meta( (int) $user_id, 'dinoai_audit_onboarding_dismissed' );
+foreach ( $dinoai_audit_users as $dinoai_audit_user_id ) {
+	delete_user_meta( (int) $dinoai_audit_user_id, 'dinoai_audit_onboarding_dismissed' );
 }

@@ -7,7 +7,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-$actions = \WPDINO\DinoAIAudit\Modules\Content::actions();
+$dinoai_audit_actions = \WPDINO\DinoAIAudit\Modules\Content::actions();
 ?>
 <div class="dinoai-audit-classic" data-dinoai-audit-classic="1">
 	<?php if ( ! dinoai_audit()->settings()->is_configured() ) : ?>
@@ -18,8 +18,8 @@ $actions = \WPDINO\DinoAIAudit\Modules\Content::actions();
 		<label class="screen-reader-text" for="dinoai-audit-classic-input"><?php esc_html_e( 'Content to send to DinoAI Audit', 'dinoai-audit' ); ?></label>
 		<textarea id="dinoai-audit-classic-input" class="widefat" rows="5"></textarea>
 		<p class="dinoai-audit-classic-actions">
-			<?php foreach ( $actions as $key => $label ) : ?>
-				<button type="button" class="button dinoai-audit-classic-action" data-prompt-key="<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $label ); ?></button>
+			<?php foreach ( $dinoai_audit_actions as $dinoai_audit_key => $dinoai_audit_label ) : ?>
+				<button type="button" class="button dinoai-audit-classic-action" data-prompt-key="<?php echo esc_attr( $dinoai_audit_key ); ?>"><?php echo esc_html( $dinoai_audit_label ); ?></button>
 			<?php endforeach; ?>
 		</p>
 		<div class="dinoai-audit-classic-status" aria-live="polite"></div>

@@ -952,7 +952,7 @@ class Site_Audit {
 	}
 
 	/**
-	 * Adds Pro edit URLs when a filter provides them.
+	 * Adds an admin edit URL to sampled finding items the current user can edit.
 	 *
 	 * @since 1.0.0
 	 *
@@ -971,12 +971,15 @@ class Site_Audit {
 				}
 
 				$post_id = isset( $item['id'] ) ? (int) $item['id'] : 0;
+				$url     = '';
+
+				if ( $post_id > 0 && current_user_can( 'edit_post', $post_id ) ) {
+					$link = get_edit_post_link( $post_id, 'raw' );
+					$url  = is_string( $link ) ? $link : '';
+				}
 
 				/**
 				 * Filters the edit URL for an audit sample item.
-				 *
-				 * This plugin leaves this empty so titles stay unlinked. When DinoAI Audit Pro
-				 * is active, an admin edit URL is added.
 				 *
 				 * @since 1.0.0
 				 *
@@ -984,12 +987,7 @@ class Site_Audit {
 				 * @param int                  $post_id Post ID.
 				 * @param array<string, mixed> $issue   Issue.
 				 */
-				$url = apply_filters( 'dinoai_audit_sample_edit_url', '', $post_id, $issue );
-
-				if ( ( ! is_string( $url ) || '' === $url ) && defined( 'DINOAI_AUDIT_PRO_VERSION' ) && $post_id > 0 && current_user_can( 'edit_post', $post_id ) ) {
-					$link = get_edit_post_link( $post_id, 'raw' );
-					$url  = is_string( $link ) ? $link : '';
-				}
+				$url = apply_filters( 'dinoai_audit_sample_edit_url', $url, $post_id, $issue );
 
 				if ( is_string( $url ) && '' !== $url ) {
 					$item['edit_url'] = esc_url_raw( $url );

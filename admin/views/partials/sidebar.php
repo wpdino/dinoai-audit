@@ -9,9 +9,9 @@ defined( 'ABSPATH' ) || exit;
 
 use WPDINO\DinoAIAudit\Admin\Admin_Layout;
 
-$docs_url    = Admin_Layout::utm_url( 'https://wpdino.com/docs/dinoai/', 'sidebar_documentation' );
-$support_url = Admin_Layout::utm_url( 'https://wordpress.org/support/plugin/dinoai/', 'sidebar_support' );
-$review_url  = 'https://wordpress.org/plugins/dinoai-audit/#reviews';
+$dinoai_audit_docs_url    = Admin_Layout::utm_url( 'https://wpdino.com/docs/dinoai/', 'sidebar_documentation' );
+$dinoai_audit_support_url = Admin_Layout::utm_url( 'https://wordpress.org/support/plugin/dinoai/', 'sidebar_support' );
+$dinoai_audit_review_url  = 'https://wordpress.org/plugins/dinoai-audit/#reviews';
 ?>
 <div class="wpdino-sidebar">
 	<div class="wpdino-card wpdino-review-card">
@@ -19,12 +19,12 @@ $review_url  = 'https://wordpress.org/plugins/dinoai-audit/#reviews';
 			<h2><?php esc_html_e( 'Need a hand?', 'dinoai-audit' ); ?></h2>
 			<p><?php esc_html_e( 'Connect your OpenAI key, test the connection, then use DinoAI Audit in the editor. Docs and support are a click away.', 'dinoai-audit' ); ?></p>
 			<div class="wpdino-review-cta">
-				<a href="<?php echo esc_url( $docs_url ); ?>" target="_blank" rel="noopener noreferrer" class="wpdino-btn wpdino-btn-primary">
+				<a href="<?php echo esc_url( $dinoai_audit_docs_url ); ?>" target="_blank" rel="noopener noreferrer" class="wpdino-btn wpdino-btn-primary">
 					<?php esc_html_e( 'Read the documentation', 'dinoai-audit' ); ?>
 					<span class="dashicons dashicons-arrow-right-alt"></span>
 				</a>
 				<p>
-					<a href="<?php echo esc_url( $support_url ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Get support', 'dinoai-audit' ); ?></a>
+					<a href="<?php echo esc_url( $dinoai_audit_support_url ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Get support', 'dinoai-audit' ); ?></a>
 				</p>
 			</div>
 		</div>
@@ -33,14 +33,16 @@ $review_url  = 'https://wordpress.org/plugins/dinoai-audit/#reviews';
 	<div class="wpdino-card wpdino-review-card">
 		<div class="wpdino-review-header">
 			<div class="wpdino-review-stars" aria-hidden="true">
-				<?php for ( $i = 0; $i < 5; $i++ ) : ?>
-					<span class="dashicons dashicons-star-filled"></span>
-				<?php endfor; ?>
+				<span class="dashicons dashicons-star-filled"></span>
+				<span class="dashicons dashicons-star-filled"></span>
+				<span class="dashicons dashicons-star-filled"></span>
+				<span class="dashicons dashicons-star-filled"></span>
+				<span class="dashicons dashicons-star-filled"></span>
 			</div>
 			<h2><?php esc_html_e( 'Enjoying DinoAI Audit?', 'dinoai-audit' ); ?></h2>
 			<p><?php esc_html_e( 'If these tools help your WordPress workflow, a quick 5-star review on WordPress.org means a lot to our small team.', 'dinoai-audit' ); ?></p>
 			<div class="wpdino-review-cta">
-				<a href="<?php echo esc_url( $review_url ); ?>" target="_blank" rel="noopener noreferrer" class="wpdino-btn wpdino-btn-primary">
+				<a href="<?php echo esc_url( $dinoai_audit_review_url ); ?>" target="_blank" rel="noopener noreferrer" class="wpdino-btn wpdino-btn-primary">
 					<?php esc_html_e( 'Leave a 5-Star Review', 'dinoai-audit' ); ?>
 					<span class="dashicons dashicons-arrow-right-alt"></span>
 				</a>

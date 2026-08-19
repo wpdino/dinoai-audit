@@ -102,7 +102,6 @@ class Plugin {
 	 * @return void
 	 */
 	public function init() {
-		$this->loader->add_action( 'init', $this, 'load_textdomain' );
 		$this->register_modules();
 
 		$admin   = new Admin\Admin( $this );
@@ -128,21 +127,6 @@ class Plugin {
 
 		do_action( 'dinoai_audit_loaded', $this );
 		do_action( 'dinoai_audit_modules_loaded', $this->modules );
-	}
-
-	/**
-	 * Loads translations.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return void
-	 */
-	public function load_textdomain() {
-		load_plugin_textdomain(
-			'dinoai-audit',
-			false,
-			dirname( DINOAI_AUDIT_BASENAME ) . '/languages'
-		);
 	}
 
 	/**

@@ -5,6 +5,7 @@
  * Description:       AI-powered WordPress website audits and optimization. Improve content, generate SEO text, write image alt text, and run a site audit.
  * Version:           1.0.0
  * Requires at least: 6.4
+ * Tested up to:      7.1
  * Requires PHP:      7.4
  * Author:            WPDINO
  * Author URI:        https://wpdino.com/
@@ -12,6 +13,31 @@
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       dinoai-audit
  * Domain Path:       /languages
+ *
+ * Privacy Policy: This plugin processes data in the following ways:
+ *
+ * 1. AI Content Generation: When a logged-in user with the required capability starts
+ *    a DinoAI Audit action, selected text, post title and content used for SEO drafts,
+ *    or an image used for alt text is transmitted to the OpenAI API. Nothing is sent
+ *    automatically in the background. OpenAI may use API data to improve their services
+ *    as outlined in their privacy policy. Content is never written into a post until
+ *    the user copies, inserts, replaces, or saves the result.
+ *
+ * 2. Connection Test: Clicking Test connection sends a short test prompt and the
+ *    configured API key to OpenAI to confirm the key works.
+ *
+ * 3. Site Audit: The basic site audit runs on this WordPress site and does not send
+ *    post content to OpenAI.
+ *
+ * 4. Plugin Settings: The OpenAI API key and usage counts are stored locally in the
+ *    WordPress database. The API key is transmitted only to OpenAI when making API
+ *    requests. The plugin does not store full prompts or full AI responses.
+ *
+ * 5. No Tracking: This plugin does not track visitors or collect analytics.
+ *
+ * For more information about OpenAI data handling:
+ * - Terms of Use: https://openai.com/policies/terms-of-use
+ * - Privacy Policy: https://openai.com/policies/privacy-policy
  *
  * @package WPDINO\DinoAIAudit
  */
