@@ -76,9 +76,9 @@ The plugin is free. OpenAI API usage is billed to your OpenAI account. See https
 
 == Screenshots ==
 
-1. DinoAI Audit settings with AI provider connection.
-2. Content actions in the block editor sidebar.
-3. Basic site audit score and recommendations.
+1. Basic site audit score and recommendations.
+2. DinoAI Audit settings with AI provider connection.
+3. Content actions in the block editor sidebar.
 
 == Changelog ==
 
