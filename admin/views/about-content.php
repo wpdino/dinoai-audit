@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || exit;
 use WPDINO\DinoAIAudit\Admin\Admin_Layout;
 
 $dinoai_audit_home_url    = Admin_Layout::utm_url( 'https://wpdino.com', 'about_home' );
-$dinoai_audit_docs_url    = Admin_Layout::utm_url( 'https://wpdino.com/docs/dinoai/', 'about_documentation' );
+$dinoai_audit_docs_url    = Admin_Layout::utm_url( 'https://wpdino.com/docs/dinoai-audit/', 'about_documentation' );
 $dinoai_audit_support_url = Admin_Layout::utm_url( 'https://wpdino.com/support/', 'about_support' );
 ?>
 <div class="wpdino-section">

@@ -17,6 +17,44 @@ defined( 'ABSPATH' ) || exit;
 class Admin_Layout {
 
 	/**
+	 * Product page for DinoAI Audit Pro.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @var string
+	 */
+	const PRO_URL = 'https://wpdino.com/plugins/dinoai-audit-pro/';
+
+	/**
+	 * Whether DinoAI Audit Pro is active.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return bool
+	 */
+	public static function is_pro_active() {
+		return defined( 'DINOAI_AUDIT_PRO_VERSION' );
+	}
+
+	/**
+	 * Upgrade URL with admin UTM params (menu / plugins list).
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string
+	 */
+	public static function go_pro_url() {
+		return add_query_arg(
+			array(
+				'utm_source'   => 'wpadmin',
+				'utm_medium'   => 'dinoai-audit',
+				'utm_campaign' => 'go-pro-links',
+			),
+			self::PRO_URL
+		);
+	}
+
+	/**
 	 * Adds UTM parameters to a WPDINO URL.
 	 *
 	 * @since 1.0.0

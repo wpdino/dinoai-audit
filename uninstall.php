@@ -19,6 +19,7 @@ function dinoai_audit_delete_site_options() {
 	delete_option( 'dinoai_audit_usage' );
 	delete_option( 'dinoai_audit_last_audit' );
 	delete_option( 'dinoai_audit_version' );
+	delete_option( 'dinoai_audit_whats_new_version' );
 	delete_transient( 'dinoai_audit_activation_redirect' );
 }
 
@@ -49,4 +50,16 @@ $dinoai_audit_users = get_users(
 
 foreach ( $dinoai_audit_users as $dinoai_audit_user_id ) {
 	delete_user_meta( (int) $dinoai_audit_user_id, 'dinoai_audit_onboarding_dismissed' );
+}
+
+$dinoai_audit_whats_new_users = get_users(
+	array(
+		'fields'       => 'ids',
+		'meta_key'     => 'dinoai_audit_whats_new_dismissed', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- uninstall cleanup.
+		'meta_compare' => 'EXISTS',
+	)
+);
+
+foreach ( $dinoai_audit_whats_new_users as $dinoai_audit_user_id ) {
+	delete_user_meta( (int) $dinoai_audit_user_id, 'dinoai_audit_whats_new_dismissed' );
 }

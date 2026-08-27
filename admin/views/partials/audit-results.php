@@ -85,16 +85,36 @@ usort(
 	<?php if ( ! empty( $dinoai_audit_issues ) ) : ?>
 		<div class="dinoai-audit-findings">
 			<div class="dinoai-audit-findings-head">
-				<h3><?php esc_html_e( 'Findings', 'dinoai-audit' ); ?></h3>
-				<p><?php esc_html_e( 'Each item includes a solution. Nothing is changed until you act.', 'dinoai-audit' ); ?></p>
+				<div class="dinoai-audit-findings-intro">
+					<h3><?php esc_html_e( 'Findings', 'dinoai-audit' ); ?></h3>
+					<p><?php esc_html_e( 'Each item includes a solution. Nothing is changed until you act.', 'dinoai-audit' ); ?></p>
+				</div>
+				<div class="dinoai-audit-findings-filters" role="group" aria-label="<?php esc_attr_e( 'Filter findings', 'dinoai-audit' ); ?>">
+					<label class="screen-reader-text" for="dinoai-audit-filter-severity"><?php esc_html_e( 'Severity', 'dinoai-audit' ); ?></label>
+					<select id="dinoai-audit-filter-severity" class="dinoai-audit-filter-select" data-dinoai-audit-filter="severity">
+						<option value=""><?php esc_html_e( 'All severities', 'dinoai-audit' ); ?></option>
+						<option value="error"><?php esc_html_e( 'Error', 'dinoai-audit' ); ?></option>
+						<option value="warning"><?php esc_html_e( 'Warning', 'dinoai-audit' ); ?></option>
+						<option value="notice"><?php esc_html_e( 'Notice', 'dinoai-audit' ); ?></option>
+					</select>
+					<label class="screen-reader-text" for="dinoai-audit-filter-category"><?php esc_html_e( 'Category', 'dinoai-audit' ); ?></label>
+					<select id="dinoai-audit-filter-category" class="dinoai-audit-filter-select" data-dinoai-audit-filter="category">
+						<option value=""><?php esc_html_e( 'All categories', 'dinoai-audit' ); ?></option>
+						<option value="seo"><?php esc_html_e( 'SEO', 'dinoai-audit' ); ?></option>
+						<option value="content"><?php esc_html_e( 'Content', 'dinoai-audit' ); ?></option>
+						<option value="accessibility"><?php esc_html_e( 'Accessibility', 'dinoai-audit' ); ?></option>
+						<option value="technical"><?php esc_html_e( 'Technical', 'dinoai-audit' ); ?></option>
+					</select>
+				</div>
 			</div>
+			<p class="dinoai-audit-filter-empty" hidden><?php esc_html_e( 'No findings match these filters.', 'dinoai-audit' ); ?></p>
 			<div class="dinoai-audit-issues">
 				<?php foreach ( $dinoai_audit_issues as $dinoai_audit_issue ) : ?>
 					<?php
 					$dinoai_audit_severity = isset( $dinoai_audit_issue['severity'] ) ? $dinoai_audit_issue['severity'] : 'notice';
 					$dinoai_audit_category = isset( $dinoai_audit_issue['category'] ) ? $dinoai_audit_issue['category'] : '';
 					?>
-					<article class="dinoai-audit-finding dinoai-audit-finding--<?php echo esc_attr( $dinoai_audit_severity ); ?>">
+					<article class="dinoai-audit-finding dinoai-audit-finding--<?php echo esc_attr( $dinoai_audit_severity ); ?>" data-severity="<?php echo esc_attr( $dinoai_audit_severity ); ?>" data-category="<?php echo esc_attr( $dinoai_audit_category ); ?>">
 						<div class="dinoai-audit-tile-icon dinoai-audit-finding-icon" aria-hidden="true">
 							<span class="dashicons <?php echo esc_attr( Admin_Layout::category_icon( $dinoai_audit_category ) ); ?>"></span>
 						</div>

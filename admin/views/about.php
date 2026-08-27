@@ -7,7 +7,10 @@
 
 defined( 'ABSPATH' ) || exit;
 
-$dinoai_audit_header_title   = __( 'Welcome to DinoAI Audit!', 'dinoai-audit' );
+$dinoai_audit_header_title   = apply_filters(
+	'dinoai_audit_welcome_title',
+	__( 'Welcome to DinoAI Audit!', 'dinoai-audit' )
+);
 $dinoai_audit_header_tagline = __( 'AI-powered WordPress website audits and optimization', 'dinoai-audit' );
 ?>
 <div class="wpdino-settings-wrap">

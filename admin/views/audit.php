@@ -12,7 +12,10 @@ defined( 'ABSPATH' ) || exit;
 use WPDINO\DinoAIAudit\Modules\Site_Audit;
 
 $dinoai_audit_screen         = Site_Audit::screen();
-$dinoai_audit_header_title   = __( 'Welcome to DinoAI Audit!', 'dinoai-audit' );
+$dinoai_audit_header_title   = apply_filters(
+	'dinoai_audit_welcome_title',
+	__( 'Welcome to DinoAI Audit!', 'dinoai-audit' )
+);
 $dinoai_audit_header_tagline = $dinoai_audit_screen['tagline'];
 ?>
 <div class="wpdino-settings-wrap">

@@ -506,7 +506,7 @@ class REST {
 			$status = 401;
 		} elseif ( in_array( $code, array( 'dinoai_audit_forbidden' ), true ) ) {
 			$status = 403;
-		} elseif ( in_array( $code, array( 'dinoai_audit_timeout', 'dinoai_audit_connection', 'dinoai_audit_provider_error', 'dinoai_audit_rate_limited' ), true ) ) {
+		} elseif ( in_array( $code, array( 'dinoai_audit_timeout', 'dinoai_audit_connection', 'dinoai_audit_provider_error', 'dinoai_audit_rate_limited', 'dinoai_audit_quota', 'dinoai_audit_invalid_key', 'dinoai_audit_provider_forbidden', 'dinoai_audit_unavailable_model' ), true ) ) {
 			$status = 502;
 		}
 

@@ -10,8 +10,8 @@ defined( 'ABSPATH' ) || exit;
 use WPDINO\DinoAIAudit\Admin\Admin_Layout;
 
 $dinoai_audit_home_url    = Admin_Layout::utm_url( 'https://wpdino.com', 'footer_home_link' );
-$dinoai_audit_docs_url    = Admin_Layout::utm_url( 'https://wpdino.com/docs/dinoai/', 'footer_documentation' );
-$dinoai_audit_support_url = Admin_Layout::utm_url( 'https://wordpress.org/support/plugin/dinoai/', 'footer_support' );
+$dinoai_audit_docs_url    = Admin_Layout::utm_url( 'https://wpdino.com/docs/dinoai-audit/', 'footer_documentation' );
+$dinoai_audit_support_url = Admin_Layout::utm_url( 'https://wordpress.org/support/plugin/dinoai-audit/', 'footer_support' );
 $dinoai_audit_brand_url   = Admin_Layout::utm_url( 'https://wpdino.com', 'footer_brand_link' );
 ?>
 <div class="wpdino-footer">

@@ -63,6 +63,7 @@
 		var hash = window.location.hash.replace('#', '');
 		var params = new URLSearchParams(window.location.search);
 		var queryTab = params.get('tab');
+		var saved = '';
 
 		if (hash && $('#tab-' + hash).length) {
 			return hash;
@@ -72,7 +73,25 @@
 			return queryTab;
 		}
 
+		try {
+			saved = window.localStorage.getItem('dinoai_audit_settings_tab') || '';
+		} catch (e) {
+			saved = '';
+		}
+
+		if (saved && $('#tab-' + saved).length) {
+			return saved;
+		}
+
 		return '';
+	}
+
+	function rememberTab(tabName) {
+		try {
+			window.localStorage.setItem('dinoai_audit_settings_tab', tabName);
+		} catch (e) {
+			// Ignore private mode / storage errors.
+		}
 	}
 
 	function initTabs() {
@@ -90,6 +109,7 @@
 			e.preventDefault();
 			var next = $(this).data('tab');
 			activateTab(next);
+			rememberTab(next);
 
 			if (history.pushState) {
 				history.pushState(null, null, '#' + next);
@@ -420,6 +440,55 @@
 			return html;
 		}
 
+		function applyFindingFilters() {
+			var $findings = $results.find('.dinoai-audit-findings');
+
+			if (!$findings.length) {
+				return;
+			}
+
+			var severity = String($findings.find('[data-dinoai-audit-filter="severity"]').val() || '');
+			var category = String($findings.find('[data-dinoai-audit-filter="category"]').val() || '');
+			var visible = 0;
+
+			$findings.find('.dinoai-audit-finding').each(function () {
+				var $item = $(this);
+				var matchSeverity = !severity || $item.attr('data-severity') === severity;
+				var matchCategory = !category || $item.attr('data-category') === category;
+				var show = matchSeverity && matchCategory;
+
+				$item.toggle(show);
+
+				if (show) {
+					visible += 1;
+				}
+			});
+
+			$findings.find('.dinoai-audit-filter-empty').prop('hidden', visible > 0);
+		}
+
+		$(document).on('change', '[data-dinoai-audit-filter]', applyFindingFilters);
+
+		function findingsFiltersHtml() {
+			var html = '<div class="dinoai-audit-findings-filters" role="group" aria-label="' + escapeHtml(wp.i18n ? wp.i18n.__('Filter findings', 'dinoai-audit') : 'Filter findings') + '">';
+			html += '<label class="screen-reader-text" for="dinoai-audit-filter-severity">' + escapeHtml(wp.i18n ? wp.i18n.__('Severity', 'dinoai-audit') : 'Severity') + '</label>';
+			html += '<select id="dinoai-audit-filter-severity" class="dinoai-audit-filter-select" data-dinoai-audit-filter="severity">';
+			html += '<option value="">' + escapeHtml(wp.i18n ? wp.i18n.__('All severities', 'dinoai-audit') : 'All severities') + '</option>';
+			html += '<option value="error">' + escapeHtml(severityLabel('error')) + '</option>';
+			html += '<option value="warning">' + escapeHtml(severityLabel('warning')) + '</option>';
+			html += '<option value="notice">' + escapeHtml(severityLabel('notice')) + '</option>';
+			html += '</select>';
+			html += '<label class="screen-reader-text" for="dinoai-audit-filter-category">' + escapeHtml(wp.i18n ? wp.i18n.__('Category', 'dinoai-audit') : 'Category') + '</label>';
+			html += '<select id="dinoai-audit-filter-category" class="dinoai-audit-filter-select" data-dinoai-audit-filter="category">';
+			html += '<option value="">' + escapeHtml(wp.i18n ? wp.i18n.__('All categories', 'dinoai-audit') : 'All categories') + '</option>';
+			html += '<option value="seo">' + escapeHtml(categoryLabel('seo')) + '</option>';
+			html += '<option value="content">' + escapeHtml(categoryLabel('content')) + '</option>';
+			html += '<option value="accessibility">' + escapeHtml(categoryLabel('accessibility')) + '</option>';
+			html += '<option value="technical">' + escapeHtml(categoryLabel('technical')) + '</option>';
+			html += '</select></div>';
+			return html;
+		}
+
 		function renderFindingSolution(issue) {
 			var html = '<div class="dinoai-audit-finding-action"><span class="dashicons dashicons-lightbulb" aria-hidden="true"></span><div>';
 			html += '<span class="dinoai-audit-finding-action-label">' + escapeHtml(wp.i18n ? wp.i18n.__('Solution', 'dinoai-audit') : 'Solution') + '</span>';
@@ -480,7 +549,7 @@
 			$.each(sorted, function (_, issue) {
 				var severity = issue.severity || 'notice';
 				var category = issue.category || '';
-				issues += '<article class="dinoai-audit-finding dinoai-audit-finding--' + escapeHtml(severity) + '">';
+				issues += '<article class="dinoai-audit-finding dinoai-audit-finding--' + escapeHtml(severity) + '" data-severity="' + escapeHtml(severity) + '" data-category="' + escapeHtml(category) + '">';
 				issues += '<div class="dinoai-audit-tile-icon dinoai-audit-finding-icon" aria-hidden="true"><span class="dashicons ' + categoryIcon(category) + '"></span></div>';
 				issues += '<div class="dinoai-audit-finding-body"><header class="dinoai-audit-finding-header">';
 				issues += '<h4>' + escapeHtml(issue.title) + '</h4>';
@@ -507,9 +576,11 @@
 			html += '<ul class="dinoai-audit-score-cats">' + cats + '</ul></div>';
 
 			if (issues) {
-				html += '<div class="dinoai-audit-findings"><div class="dinoai-audit-findings-head">';
+				html += '<div class="dinoai-audit-findings"><div class="dinoai-audit-findings-head"><div class="dinoai-audit-findings-intro">';
 				html += '<h3>' + escapeHtml(wp.i18n ? wp.i18n.__('Findings', 'dinoai-audit') : 'Findings') + '</h3>';
 				html += '<p>' + escapeHtml(wp.i18n ? wp.i18n.__('Each item includes a solution. Nothing is changed until you act.', 'dinoai-audit') : 'Each item includes a solution. Nothing is changed until you act.') + '</p></div>';
+				html += findingsFiltersHtml() + '</div>';
+				html += '<p class="dinoai-audit-filter-empty" hidden>' + escapeHtml(wp.i18n ? wp.i18n.__('No findings match these filters.', 'dinoai-audit') : 'No findings match these filters.') + '</p>';
 				html += '<div class="dinoai-audit-issues">' + issues + '</div></div>';
 			}
 

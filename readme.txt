@@ -5,7 +5,7 @@ Tags: ai, content, seo, accessibility, alt text
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -76,16 +76,27 @@ The plugin is free. OpenAI API usage is billed to your OpenAI account. See https
 
 == Screenshots ==
 
-1. Basic site audit score and recommendations.
-2. DinoAI Audit settings with AI provider connection.
-3. Content actions in the block editor sidebar.
+1. DinoAI Audit settings with AI provider connection.
+2. Content actions in the block editor sidebar.
+3. Basic site audit score and recommendations.
 
 == Changelog ==
+
+= 1.0.1 =
+* Clearer messages when an OpenAI API key or billing check fails.
+* Filter audit findings by severity and category.
+* Settings remembers your last tab.
+* Dismissible “What’s new” notice after updates.
+* Fixed documentation and WordPress.org support links.
+* Fixed masked API key length unit test.
 
 = 1.0.0 =
 * Initial release: content actions, SEO assistance, image alt text, and a basic site audit.
 
 == Upgrade Notice ==
+
+= 1.0.1 =
+Polish release: clearer AI errors, audit filters, remembered settings tab, and link fixes.
 
 = 1.0.0 =
 First public release of DinoAI Audit.

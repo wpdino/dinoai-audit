@@ -48,6 +48,9 @@ class Admin_Menu {
 	 */
 	public function register( Loader $loader ) {
 		$loader->add_action( 'admin_menu', $this, 'add_pages' );
+		$loader->add_action( 'admin_menu', $this, 'add_go_pro_link', 20 );
+		$loader->add_action( 'admin_head', $this, 'go_pro_menu_css' );
+		$loader->add_action( 'admin_footer', $this, 'go_pro_menu_js' );
 	}
 
 	/**
@@ -107,6 +110,86 @@ class Admin_Menu {
 			'dinoai-audit-about',
 			array( $this, 'render_about' )
 		);
+	}
+
+	/**
+	 * Adds an Upgrade to PRO submenu item when Pro is not active.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return void
+	 */
+	public function add_go_pro_link() {
+		if ( Admin_Layout::is_pro_active() ) {
+			return;
+		}
+
+		global $submenu;
+
+		if ( ! isset( $submenu['dinoai-audit'] ) ) {
+			return;
+		}
+
+		$submenu['dinoai-audit'][] = array(
+			esc_html__( 'Upgrade to PRO', 'dinoai-audit' ),
+			'manage_options',
+			Admin_Layout::go_pro_url(),
+		);
+	}
+
+	/**
+	 * Styles the Upgrade to PRO menu link.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return void
+	 */
+	public function go_pro_menu_css() {
+		if ( Admin_Layout::is_pro_active() ) {
+			return;
+		}
+
+		$url = esc_url( Admin_Layout::go_pro_url() );
+		?>
+		<style>
+			#adminmenu #toplevel_page_dinoai-audit a[href="<?php echo esc_attr( $url ); ?>"],
+			#adminmenu #toplevel_page_dinoai-audit a[href*="dinoai-audit-pro"],
+			#adminmenu #toplevel_page_dinoai-audit a.dinoai-audit-go-pro-menu-link {
+				background-color: #1a8960;
+				color: #fff;
+				font-weight: 600;
+			}
+			#adminmenu #toplevel_page_dinoai-audit a[href="<?php echo esc_attr( $url ); ?>"]:hover,
+			#adminmenu #toplevel_page_dinoai-audit a[href*="dinoai-audit-pro"]:hover,
+			#adminmenu #toplevel_page_dinoai-audit a.dinoai-audit-go-pro-menu-link:hover {
+				background-color: rgb(21, 116, 81);
+				color: #fff;
+			}
+		</style>
+		<?php
+	}
+
+	/**
+	 * Opens the Upgrade to PRO menu link in a new tab.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return void
+	 */
+	public function go_pro_menu_js() {
+		if ( Admin_Layout::is_pro_active() ) {
+			return;
+		}
+		?>
+		<script>
+			jQuery( document ).ready( function( $ ) {
+				var $proLink = $( '.wp-submenu a[href*="dinoai-audit-pro"]' );
+				if ( $proLink.length ) {
+					$proLink.attr( 'target', '_blank' ).addClass( 'dinoai-audit-go-pro-menu-link' );
+				}
+			} );
+		</script>
+		<?php
 	}
 
 	/**

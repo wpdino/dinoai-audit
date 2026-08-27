@@ -66,7 +66,10 @@ $dinoai_audit_settings_tabs = array(
  */
 $dinoai_audit_settings_tabs = apply_filters( 'dinoai_audit_settings_tabs', $dinoai_audit_settings_tabs );
 
-$dinoai_audit_header_title   = __( 'Welcome to DinoAI Audit!', 'dinoai-audit' );
+$dinoai_audit_header_title   = apply_filters(
+	'dinoai_audit_welcome_title',
+	__( 'Welcome to DinoAI Audit!', 'dinoai-audit' )
+);
 $dinoai_audit_header_tagline = __( 'AI-powered WordPress website audits and optimization', 'dinoai-audit' );
 ?>
 <div class="wpdino-settings-wrap">
@@ -130,6 +133,17 @@ $dinoai_audit_header_tagline = __( 'AI-powered WordPress website audits and opti
 								</div>
 							<?php endforeach; ?>
 						</div>
+
+						<?php
+						/**
+						 * Fires after core module toggles on the General settings tab.
+						 *
+						 * Pro uses this to append its module grid in the same panel.
+						 *
+						 * @since 1.0.0
+						 */
+						do_action( 'dinoai_audit_settings_general_after_modules' );
+						?>
 					</div>
 
 					<div class="wpdino-tab-content<?php echo 'provider' === $tab ? ' active' : ''; ?>" id="tab-provider" role="tabpanel" aria-labelledby="tab-provider-btn">

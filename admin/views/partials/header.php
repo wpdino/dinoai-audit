@@ -11,7 +11,17 @@
 defined( 'ABSPATH' ) || exit;
 
 if ( ! isset( $dinoai_audit_header_title ) ) {
-	$dinoai_audit_header_title = __( 'Welcome to DinoAI Audit!', 'dinoai-audit' );
+	/**
+	 * Filters the default admin welcome header title.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $title Welcome title.
+	 */
+	$dinoai_audit_header_title = apply_filters(
+		'dinoai_audit_welcome_title',
+		__( 'Welcome to DinoAI Audit!', 'dinoai-audit' )
+	);
 }
 
 if ( ! isset( $dinoai_audit_header_tagline ) ) {

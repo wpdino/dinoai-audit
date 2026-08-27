@@ -214,14 +214,20 @@
 
 .dinoai-audit-findings-head {
 	display: flex;
-	align-items: baseline;
+	flex-wrap: wrap;
+	align-items: flex-start;
 	justify-content: space-between;
-	gap: 16px;
+	gap: 16px 24px;
 	margin: 0 0 16px;
 }
 
+.dinoai-audit-findings-intro {
+	flex: 1 1 220px;
+	min-width: 0;
+}
+
 .dinoai-audit-findings-head h3 {
-	margin: 0;
+	margin: 0 0 6px;
 	font-size: 18px;
 	color: var(--dinoai-audit-ink);
 }
@@ -230,6 +236,33 @@
 	margin: 0;
 	color: var(--dinoai-audit-muted);
 	font-size: 13px;
+}
+
+.dinoai-audit-findings-filters {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	align-items: center;
+}
+
+.dinoai-audit-filter-select {
+	min-width: 150px;
+	max-width: 100%;
+	margin: 0;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	padding: 4px 8px;
+	line-height: 2;
+	background: #fff;
+	color: #1d2327;
+}
+
+.dinoai-audit-filter-empty {
+	margin: 0 0 16px;
+	padding: 12px 14px;
+	background: #f6f7f7;
+	border-left: 3px solid #1a8960;
+	color: #50575e;
 }
 
 .dinoai-audit-tile-icon {
@@ -583,9 +616,18 @@
 .dinoai-audit-switch input {
 	position: absolute;
 	inset: 0;
-	opacity: 0;
+	width: 100%;
+	height: 100%;
 	margin: 0;
+	padding: 0;
+	opacity: 0 !important;
+	appearance: none;
+	-webkit-appearance: none;
+	border: none;
+	background: transparent;
+	box-shadow: none;
 	cursor: pointer;
+	z-index: 1;
 }
 
 .dinoai-audit-switch-ui {
@@ -595,6 +637,7 @@
 	border-radius: 999px;
 	background: #d5ddd8;
 	transition: background 180ms ease;
+	pointer-events: none;
 }
 
 .dinoai-audit-switch-ui::after {

@@ -109,12 +109,14 @@ class Plugin {
 		$rest    = new REST( $this );
 		$privacy = new Admin\Privacy();
 		$onboard = new Admin\Onboarding( $this->settings );
+		$whats   = new Admin\Whats_New();
 
 		$admin->register( $this->loader );
 		$menu->register( $this->loader );
 		$rest->register( $this->loader );
 		$privacy->register( $this->loader );
 		$onboard->register( $this->loader );
+		$whats->register( $this->loader );
 		$this->settings->register( $this->loader );
 
 		foreach ( $this->modules as $module ) {

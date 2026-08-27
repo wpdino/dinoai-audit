@@ -328,43 +328,58 @@ class OpenAI_Provider implements Provider_Interface {
 	 * @return \WP_Error
 	 */
 	protected function http_error( $status, array $data ) {
-		if ( 401 === $status ) {
+		$type = '';
+		$code = '';
+
+		if ( isset( $data['error']['type'] ) && is_string( $data['error']['type'] ) ) {
+			$type = $data['error']['type'];
+		}
+
+		if ( isset( $data['error']['code'] ) && is_string( $data['error']['code'] ) ) {
+			$code = $data['error']['code'];
+		}
+
+		$billing_codes = array( 'insufficient_quota', 'billing_not_active', 'billing_hard_limit_reached' );
+		$invalid_codes = array( 'invalid_api_key', 'invalid_api_key_format', 'account_deactivated' );
+
+		if ( 401 === $status || in_array( $code, $invalid_codes, true ) ) {
 			return new \WP_Error(
 				'dinoai_audit_invalid_key',
-				__( 'The AI API key appears to be invalid. Please check DinoAI Audit → Settings.', 'dinoai-audit' )
+				__( 'Your OpenAI API key was rejected. Open DinoAI Audit → Settings, paste a valid key from platform.openai.com/api-keys, save, then click Test connection.', 'dinoai-audit' )
+			);
+		}
+
+		if ( in_array( $code, $billing_codes, true ) || 'insufficient_quota' === $type ) {
+			return new \WP_Error(
+				'dinoai_audit_quota',
+				__( 'OpenAI reports no remaining quota or inactive billing. Add a payment method or check usage at platform.openai.com, then try again.', 'dinoai-audit' )
+			);
+		}
+
+		if ( 403 === $status ) {
+			return new \WP_Error(
+				'dinoai_audit_provider_forbidden',
+				__( 'OpenAI blocked this request. Confirm your API key, project access, and billing status at platform.openai.com, then try again.', 'dinoai-audit' )
 			);
 		}
 
 		if ( 429 === $status ) {
 			return new \WP_Error(
 				'dinoai_audit_rate_limited',
-				__( 'The AI provider rate-limited this request. Please wait a moment and try again.', 'dinoai-audit' )
+				__( 'OpenAI rate-limited this request. Wait a moment, or check your plan limits at platform.openai.com, then try again.', 'dinoai-audit' )
 			);
 		}
 
 		if ( 404 === $status ) {
 			return new \WP_Error(
 				'dinoai_audit_unavailable_model',
-				__( 'The selected AI model is unavailable. Choose a different model in DinoAI Audit settings.', 'dinoai-audit' )
-			);
-		}
-
-		$type = '';
-
-		if ( isset( $data['error']['type'] ) && is_string( $data['error']['type'] ) ) {
-			$type = $data['error']['type'];
-		}
-
-		if ( 'insufficient_quota' === $type ) {
-			return new \WP_Error(
-				'dinoai_audit_quota',
-				__( 'The AI provider reported insufficient quota. Please check your OpenAI account.', 'dinoai-audit' )
+				__( 'The selected AI model is unavailable. Choose a different model in DinoAI Audit → Settings → AI Provider.', 'dinoai-audit' )
 			);
 		}
 
 		return new \WP_Error(
 			'dinoai_audit_provider_error',
-			__( 'DinoAI Audit could not complete the request. Please check your AI provider settings and try again.', 'dinoai-audit' )
+			__( 'DinoAI Audit could not complete the request. Check your OpenAI API key and billing in DinoAI Audit → Settings, then try again.', 'dinoai-audit' )
 		);
 	}
 

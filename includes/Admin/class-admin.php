@@ -188,9 +188,19 @@ class Admin {
 	 * @return string[]
 	 */
 	public function action_links( $links ) {
-		$settings = '<a href="' . esc_url( admin_url( 'admin.php?page=dinoai-audit-settings' ) ) . '">' . esc_html__( 'Settings', 'dinoai-audit' ) . '</a>';
-		array_unshift( $links, $settings );
-		return $links;
+		$extra = array();
+
+		if ( ! Admin_Layout::is_pro_active() ) {
+			$extra[] = sprintf(
+				'<a href="%1$s" target="_blank" rel="noopener noreferrer" class="dinoai-audit-gopro" style="color:#1a8960;font-weight:bold;">%2$s</a>',
+				esc_url( Admin_Layout::go_pro_url() ),
+				esc_html__( 'Get DinoAI Audit PRO', 'dinoai-audit' )
+			);
+		}
+
+		$extra[] = '<a href="' . esc_url( admin_url( 'admin.php?page=dinoai-audit-settings' ) ) . '">' . esc_html__( 'Settings', 'dinoai-audit' ) . '</a>';
+
+		return array_merge( $extra, $links );
 	}
 
 	/**
