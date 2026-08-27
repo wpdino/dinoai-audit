@@ -5,7 +5,7 @@ Tags: ai, content, seo, accessibility, alt text
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -81,6 +81,9 @@ The plugin is free. OpenAI API usage is billed to your OpenAI account. See https
 3. Basic site audit score and recommendations.
 
 == Changelog ==
+
+= 1.0.2 =
+* Minor fix
 
 = 1.0.1 =
 * Clearer messages when an OpenAI API key or billing check fails.
