@@ -5,7 +5,7 @@ Tags: ai, content, seo, accessibility, alt text
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.2
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -82,8 +82,14 @@ The plugin is free. OpenAI API usage is billed to your OpenAI account. See https
 
 == Changelog ==
 
+= 1.1.0 =
+* Writing tone presets (Professional, Casual, Friendly, Concise) for content and SEO drafts.
+* Site-wide custom instructions for AI actions.
+* Copy SEO title and meta description into Yoast SEO or Rank Math with one click.
+* Setup wizard checklist: connect key, test connection, try Improve.
+
 = 1.0.2 =
-* Minor fix
+* Minor fix.
 
 = 1.0.1 =
 * Clearer messages when an OpenAI API key or billing check fails.
@@ -97,6 +103,9 @@ The plugin is free. OpenAI API usage is billed to your OpenAI account. See https
 * Initial release: content actions, SEO assistance, image alt text, and a basic site audit.
 
 == Upgrade Notice ==
+
+= 1.1.0 =
+Tone presets, custom instructions, Yoast/Rank Math handoff, and a setup wizard.
 
 = 1.0.1 =
 Polish release: clearer AI errors, audit filters, remembered settings tab, and link fixes.

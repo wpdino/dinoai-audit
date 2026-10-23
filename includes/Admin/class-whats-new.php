@@ -158,10 +158,10 @@ class Whats_New {
 	 */
 	protected function changelog_items() {
 		return array(
-			__( 'Clearer messages when an OpenAI API key or billing check fails.', 'dinoai-audit' ),
-			__( 'Filter audit findings by severity and category.', 'dinoai-audit' ),
-			__( 'Settings remembers your last tab.', 'dinoai-audit' ),
-			__( 'Fixed documentation and support links.', 'dinoai-audit' ),
+			__( 'Writing tone presets for content and SEO drafts.', 'dinoai-audit' ),
+			__( 'Site-wide custom instructions for AI actions.', 'dinoai-audit' ),
+			__( 'Copy SEO title and meta description to Yoast or Rank Math.', 'dinoai-audit' ),
+			__( 'Setup wizard: connect, test, then try Improve.', 'dinoai-audit' ),
 		);
 	}
 }

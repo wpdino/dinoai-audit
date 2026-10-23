@@ -231,6 +231,10 @@ class Admin {
 			),
 			'supportsVision' => $this->plugin->ai()->supports_vision(),
 			'postId'         => $post_id,
+			'seoPlugins'     => array(
+				'yoast'    => defined( 'WPSEO_VERSION' ),
+				'rankMath' => defined( 'RANK_MATH_VERSION' ),
+			),
 			'audit'          => array(
 				'running' => $audit_screen['running'],
 				'empty'   => $audit_screen['empty'],

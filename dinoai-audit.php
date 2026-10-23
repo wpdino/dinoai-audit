@@ -3,7 +3,7 @@
  * Plugin Name:       DinoAI Audit
  * Plugin URI:        https://wpdino.com/dinoai-audit/
  * Description:       AI-powered WordPress website audits and optimization. Improve content, generate SEO text, write image alt text, and run a site audit.
- * Version:           1.0.2
+ * Version:           1.1.0
  * Requires at least: 6.4
  * Tested up to:      7.1
  * Requires PHP:      7.4

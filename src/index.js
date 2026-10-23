@@ -14,7 +14,12 @@ import {
 	Spinner,
 	createSlotFill,
 } from '@wordpress/components';
-import { useSelect, useDispatch, select as dataSelect } from '@wordpress/data';
+import {
+	useSelect,
+	useDispatch,
+	select as dataSelect,
+	dispatch as dataDispatch,
+} from '@wordpress/data';
 import { createElement as el, useState, useEffect, useRef, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
@@ -170,6 +175,78 @@ function getSelectionSnapshot( blockEditor ) {
 
 function snapshotIsUseful( snapshot ) {
 	return Boolean( snapshot && ( snapshot.range || snapshot.clientIds.length ) );
+}
+
+function seoPlugins() {
+	return config.seoPlugins || {};
+}
+
+function applySeoPluginFields( fields ) {
+	const plugins = seoPlugins();
+	const applied = [];
+
+	if ( plugins.yoast ) {
+		try {
+			const yoast = dataSelect( 'yoast-seo/editor' );
+			const dispatch = dataDispatch( 'yoast-seo/editor' );
+			if ( yoast && dispatch && typeof dispatch.updateData === 'function' ) {
+				const payload = {};
+				if ( fields.title ) {
+					payload.title = fields.title;
+				}
+				if ( fields.description ) {
+					payload.description = fields.description;
+				}
+				dispatch.updateData( payload );
+				applied.push( 'yoast' );
+			}
+		} catch ( error ) {
+			// Fall through to meta.
+		}
+
+		if ( ! applied.includes( 'yoast' ) ) {
+			const meta = {};
+			if ( fields.title ) {
+				meta._yoast_wpseo_title = fields.title;
+			}
+			if ( fields.description ) {
+				meta._yoast_wpseo_metadesc = fields.description;
+			}
+			dataDispatch( 'core/editor' ).editPost( { meta } );
+			applied.push( 'yoast' );
+		}
+	}
+
+	if ( plugins.rankMath ) {
+		try {
+			const dispatch = dataDispatch( 'rank-math' );
+			if ( dispatch ) {
+				if ( fields.title && typeof dispatch.updateTitle === 'function' ) {
+					dispatch.updateTitle( fields.title );
+				}
+				if ( fields.description && typeof dispatch.updateDescription === 'function' ) {
+					dispatch.updateDescription( fields.description );
+				}
+				applied.push( 'rankMath' );
+			}
+		} catch ( error ) {
+			// Fall through to meta.
+		}
+
+		if ( ! applied.includes( 'rankMath' ) ) {
+			const meta = {};
+			if ( fields.title ) {
+				meta.rank_math_title = fields.title;
+			}
+			if ( fields.description ) {
+				meta.rank_math_description = fields.description;
+			}
+			dataDispatch( 'core/editor' ).editPost( { meta } );
+			applied.push( 'rankMath' );
+		}
+	}
+
+	return applied;
 }
 
 function DinoAIAuditSidebar() {
@@ -387,6 +464,62 @@ function DinoAIAuditSidebar() {
 		}
 	}
 
+	function applySeoTitleToPlugin() {
+		if ( ! structured || ! structured.title ) {
+			return;
+		}
+
+		const applied = applySeoPluginFields( { title: structured.title } );
+
+		if ( ! applied.length ) {
+			setStatus( {
+				type: 'error',
+				message: __(
+					'No compatible SEO plugin detected. Install Yoast SEO or Rank Math, or copy the title manually.',
+					'dinoai-audit'
+				),
+			} );
+			return;
+		}
+
+		setStatus( {
+			type: 'success',
+			message: __(
+				'SEO title sent to your SEO plugin. Review it in the SEO panel before publishing.',
+				'dinoai-audit'
+			),
+		} );
+	}
+
+	function applySeoDescriptionToPlugin() {
+		if ( ! structured || ! structured.meta_description ) {
+			return;
+		}
+
+		const applied = applySeoPluginFields( {
+			description: structured.meta_description,
+		} );
+
+		if ( ! applied.length ) {
+			setStatus( {
+				type: 'error',
+				message: __(
+					'No compatible SEO plugin detected. Install Yoast SEO or Rank Math, or copy the description manually.',
+					'dinoai-audit'
+				),
+			} );
+			return;
+		}
+
+		setStatus( {
+			type: 'success',
+			message: __(
+				'Meta description sent to your SEO plugin. Review it in the SEO panel before publishing.',
+				'dinoai-audit'
+			),
+		} );
+	}
+
 	function generateImageAlt() {
 		const block = editorState.selected;
 		const attachmentId =
@@ -579,13 +712,56 @@ function DinoAIAuditSidebar() {
 						: null,
 					structured && structured.title
 						? el(
-								Button,
+								'div',
 								{
-									variant: 'secondary',
-									onClick: applyTitle,
+									className: 'dinoai-audit-action-row',
 									style: { marginTop: '8px' },
 								},
-								__( 'Use as post title', 'dinoai-audit' )
+								el(
+									Button,
+									{
+										variant: 'secondary',
+										onClick: applyTitle,
+									},
+									__( 'Use as post title', 'dinoai-audit' )
+								),
+								seoPlugins().yoast || seoPlugins().rankMath
+									? el(
+											Button,
+											{
+												variant: 'secondary',
+												onClick: applySeoTitleToPlugin,
+											},
+											seoPlugins().yoast && seoPlugins().rankMath
+												? __( 'Copy title to SEO plugin', 'dinoai-audit' )
+												: seoPlugins().yoast
+												? __( 'Copy title to Yoast', 'dinoai-audit' )
+												: __( 'Copy title to Rank Math', 'dinoai-audit' )
+									  )
+									: null
+						  )
+						: null,
+					structured && structured.meta_description
+						? el(
+								'div',
+								{
+									className: 'dinoai-audit-action-row',
+									style: { marginTop: '8px' },
+								},
+								seoPlugins().yoast || seoPlugins().rankMath
+									? el(
+											Button,
+											{
+												variant: 'secondary',
+												onClick: applySeoDescriptionToPlugin,
+											},
+											seoPlugins().yoast && seoPlugins().rankMath
+												? __( 'Copy description to SEO plugin', 'dinoai-audit' )
+												: seoPlugins().yoast
+												? __( 'Copy description to Yoast', 'dinoai-audit' )
+												: __( 'Copy description to Rank Math', 'dinoai-audit' )
+									  )
+									: null
 						  )
 						: null
 			  )

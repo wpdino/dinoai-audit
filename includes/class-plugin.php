@@ -108,8 +108,9 @@ class Plugin {
 		$menu    = new Admin\Admin_Menu( $this );
 		$rest    = new REST( $this );
 		$privacy = new Admin\Privacy();
-		$onboard = new Admin\Onboarding( $this->settings );
+		$onboard = new Admin\Onboarding( $this->settings, $this->usage );
 		$whats   = new Admin\Whats_New();
+		$style   = new Prompt_Style( $this->settings );
 
 		$admin->register( $this->loader );
 		$menu->register( $this->loader );
@@ -117,6 +118,7 @@ class Plugin {
 		$privacy->register( $this->loader );
 		$onboard->register( $this->loader );
 		$whats->register( $this->loader );
+		$style->register( $this->loader );
 		$this->settings->register( $this->loader );
 
 		foreach ( $this->modules as $module ) {

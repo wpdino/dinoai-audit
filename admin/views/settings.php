@@ -144,6 +144,37 @@ $dinoai_audit_header_tagline = __( 'AI-powered WordPress website audits and opti
 						 */
 						do_action( 'dinoai_audit_settings_general_after_modules' );
 						?>
+
+						<div class="wpdino-section" style="margin-top:28px;">
+							<h3 class="wpdino-section-title">
+								<span class="dashicons dashicons-edit"></span>
+								<?php esc_html_e( 'Writing style', 'dinoai-audit' ); ?>
+							</h3>
+							<p class="wpdino-section-description"><?php esc_html_e( 'Guide content and SEO drafts. Applied only when you start an AI action.', 'dinoai-audit' ); ?></p>
+						</div>
+
+						<div class="wpdino-field-group">
+							<label for="dinoai-audit-tone" class="wpdino-label"><?php esc_html_e( 'Default tone', 'dinoai-audit' ); ?></label>
+							<select name="dinoai_audit_settings[tone]" id="dinoai-audit-tone" class="wpdino-select">
+								<?php foreach ( \WPDINO\DinoAIAudit\Settings::tone_options() as $dinoai_audit_tone_slug => $dinoai_audit_tone_label ) : ?>
+									<option value="<?php echo esc_attr( $dinoai_audit_tone_slug ); ?>" <?php selected( isset( $dinoai_audit_all['tone'] ) ? $dinoai_audit_all['tone'] : 'default', $dinoai_audit_tone_slug ); ?>><?php echo esc_html( $dinoai_audit_tone_label ); ?></option>
+								<?php endforeach; ?>
+							</select>
+							<p class="wpdino-description"><?php esc_html_e( 'Used for Improve, Rewrite, Shorten, Expand, Summarize, and SEO drafts.', 'dinoai-audit' ); ?></p>
+						</div>
+
+						<div class="wpdino-field-group">
+							<label for="dinoai-audit-custom-instructions" class="wpdino-label"><?php esc_html_e( 'Custom instructions', 'dinoai-audit' ); ?></label>
+							<textarea
+								name="dinoai_audit_settings[custom_instructions]"
+								id="dinoai-audit-custom-instructions"
+								class="wpdino-input"
+								rows="4"
+								maxlength="1000"
+								placeholder="<?php esc_attr_e( 'Example: Keep British English. Never use emojis. Prefer short paragraphs.', 'dinoai-audit' ); ?>"
+							><?php echo esc_textarea( isset( $dinoai_audit_all['custom_instructions'] ) ? (string) $dinoai_audit_all['custom_instructions'] : '' ); ?></textarea>
+							<p class="wpdino-description"><?php esc_html_e( 'Optional site-wide notes for the AI (up to 1,000 characters). Leave blank for no extra instructions.', 'dinoai-audit' ); ?></p>
+						</div>
 					</div>
 
 					<div class="wpdino-tab-content<?php echo 'provider' === $tab ? ' active' : ''; ?>" id="tab-provider" role="tabpanel" aria-labelledby="tab-provider-btn">

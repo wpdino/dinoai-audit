@@ -71,16 +71,56 @@ class Settings {
 	 */
 	public static function defaults() {
 		return array(
-			'provider' => 'openai',
-			'api_key'  => '',
-			'model'    => 'gpt-4o-mini',
-			'modules'  => array(
+			'provider'            => 'openai',
+			'api_key'             => '',
+			'model'               => 'gpt-4o-mini',
+			'tone'                => 'default',
+			'custom_instructions' => '',
+			'modules'             => array(
 				'content' => true,
 				'seo'     => true,
 				'images'  => true,
 				'audit'   => true,
 			),
 		);
+	}
+
+	/**
+	 * Allowed writing tone slugs.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @return array<string, string> Slug => label.
+	 */
+	public static function tone_options() {
+		return array(
+			'default'      => __( 'Default', 'dinoai-audit' ),
+			'professional' => __( 'Professional', 'dinoai-audit' ),
+			'casual'       => __( 'Casual', 'dinoai-audit' ),
+			'friendly'     => __( 'Friendly', 'dinoai-audit' ),
+			'concise'      => __( 'Concise', 'dinoai-audit' ),
+		);
+	}
+
+	/**
+	 * Instruction text for a tone slug (empty for default).
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param string $tone Tone slug.
+	 * @return string
+	 */
+	public static function tone_instruction( $tone ) {
+		$map = array(
+			'professional' => 'Write in a professional, clear tone suitable for a business website.',
+			'casual'       => 'Write in a casual, conversational tone.',
+			'friendly'     => 'Write in a warm, friendly, approachable tone.',
+			'concise'      => 'Prefer short sentences and concise wording. Avoid filler.',
+		);
+
+		$tone = sanitize_key( $tone );
+
+		return isset( $map[ $tone ] ) ? $map[ $tone ] : '';
 	}
 
 	/**
@@ -226,6 +266,13 @@ class Settings {
 			isset( $input['modules'] ) && is_array( $input['modules'] ) ? $input['modules'] : array()
 		);
 
+		$tones = array_keys( self::tone_options() );
+		$tone  = isset( $input['tone'] ) ? sanitize_key( $input['tone'] ) : 'default';
+		$clean['tone'] = in_array( $tone, $tones, true ) ? $tone : 'default';
+
+		$instructions = isset( $input['custom_instructions'] ) ? $input['custom_instructions'] : '';
+		$clean['custom_instructions'] = $this->sanitize_custom_instructions( $instructions );
+
 		$clean['api_key'] = $current['api_key'];
 
 		if ( isset( $input['api_key'] ) && is_string( $input['api_key'] ) ) {
@@ -239,6 +286,29 @@ class Settings {
 		}
 
 		return $clean;
+	}
+
+	/**
+	 * Sanitizes site-wide custom AI instructions.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param mixed $value Raw value.
+	 * @return string
+	 */
+	public function sanitize_custom_instructions( $value ) {
+		if ( ! is_string( $value ) ) {
+			return '';
+		}
+
+		$value = sanitize_textarea_field( $value );
+		$value = trim( $value );
+
+		if ( function_exists( 'mb_substr' ) ) {
+			return mb_substr( $value, 0, 1000 );
+		}
+
+		return substr( $value, 0, 1000 );
 	}
 
 	/**

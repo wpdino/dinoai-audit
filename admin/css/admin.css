@@ -867,6 +867,420 @@
 	line-height: 1.5;
 }
 
+/* Setup wizard — branded card (not stock WP notice) */
+.notice.dinoai-audit-setup-wizard {
+	border: none !important;
+	background: transparent !important;
+	box-shadow: none !important;
+	margin: 12px 0 24px !important;
+	padding: 0 !important;
+	max-width: 100%;
+}
+
+.notice.dinoai-audit-setup-wizard::before,
+.notice.dinoai-audit-setup-wizard::after {
+	display: none !important;
+}
+
+.dinoai-audit-setup-card {
+	background: #fff;
+	border: 1px solid #e3f0ea;
+	border-radius: 12px;
+	box-shadow: 0 8px 28px rgba(26, 137, 96, 0.08);
+	overflow: hidden;
+}
+
+.dinoai-audit-setup-hero {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 20px 32px;
+	padding: 28px 32px 24px;
+	background:
+		radial-gradient(ellipse 80% 120% at 100% 0%, rgba(26, 137, 96, 0.1) 0%, transparent 55%),
+		linear-gradient(135deg, #f7fcf9 0%, #eef8f3 48%, #f8fffe 100%);
+	border-bottom: 1px solid #e9f7f6;
+}
+
+.dinoai-audit-setup-hero-copy {
+	display: flex;
+	align-items: flex-start;
+	gap: 16px;
+	min-width: min(100%, 320px);
+	flex: 1 1 280px;
+}
+
+.dinoai-audit-setup-badge {
+	flex-shrink: 0;
+	width: 48px;
+	height: 48px;
+	border-radius: 12px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: linear-gradient(145deg, #1a8960 0%, #157451 100%);
+	color: #fff;
+	box-shadow: 0 6px 16px rgba(26, 137, 96, 0.28);
+}
+
+.dinoai-audit-setup-badge .dashicons {
+	width: 26px;
+	height: 26px;
+	font-size: 26px;
+	line-height: 1;
+}
+
+.dinoai-audit-setup-hero-copy h2 {
+	margin: 0 0 6px;
+	font-size: 22px;
+	font-weight: 650;
+	letter-spacing: -0.02em;
+	line-height: 1.25;
+	color: #14352a;
+}
+
+.dinoai-audit-setup-hero-copy p {
+	margin: 0;
+	max-width: 42ch;
+	font-size: 14px;
+	line-height: 1.55;
+	color: #3d5c50;
+}
+
+.dinoai-audit-setup-progress {
+	flex: 0 1 200px;
+	min-width: 160px;
+	padding-top: 4px;
+}
+
+.dinoai-audit-setup-progress-meta {
+	display: flex;
+	align-items: baseline;
+	justify-content: flex-end;
+	gap: 6px;
+	margin-bottom: 10px;
+}
+
+.dinoai-audit-setup-progress-count {
+	font-size: 20px;
+	font-weight: 700;
+	font-variant-numeric: tabular-nums;
+	letter-spacing: -0.02em;
+	color: #1a8960;
+	line-height: 1;
+}
+
+.dinoai-audit-setup-progress-label {
+	font-size: 12px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: #5a7a6c;
+}
+
+.dinoai-audit-setup-progress-track {
+	height: 8px;
+	border-radius: 999px;
+	background: rgba(26, 137, 96, 0.12);
+	overflow: hidden;
+}
+
+.dinoai-audit-setup-progress-fill {
+	display: block;
+	height: 100%;
+	border-radius: inherit;
+	background: linear-gradient(90deg, #1a8960 0%, #22a872 100%);
+	transition: width 280ms ease-out;
+}
+
+.dinoai-audit-setup-steps {
+	list-style: none;
+	margin: 0;
+	padding: 8px 20px 8px;
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 12px;
+}
+
+.dinoai-audit-setup-step {
+	margin: 0;
+	position: relative;
+	border: 1px solid #e9f0ed;
+	border-radius: 10px;
+	background: #fbfdfc;
+	padding: 18px 16px 16px;
+	transition: border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
+}
+
+.dinoai-audit-setup-step.is-current {
+	border-color: rgba(26, 137, 96, 0.45);
+	background: #fff;
+	box-shadow: 0 6px 18px rgba(26, 137, 96, 0.1);
+}
+
+.dinoai-audit-setup-step.is-done {
+	border-color: #d7ebe2;
+	background: #f3faf6;
+}
+
+.dinoai-audit-setup-step-marker {
+	position: absolute;
+	top: 14px;
+	right: 14px;
+	width: 28px;
+	height: 28px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 12px;
+	font-weight: 700;
+	font-variant-numeric: tabular-nums;
+	background: #e8f3ee;
+	color: #1a8960;
+}
+
+.dinoai-audit-setup-step.is-current .dinoai-audit-setup-step-marker {
+	background: #1a8960;
+	color: #fff;
+	box-shadow: 0 2px 8px rgba(26, 137, 96, 0.35);
+}
+
+.dinoai-audit-setup-step.is-done .dinoai-audit-setup-step-marker {
+	background: #1a8960;
+	color: #fff;
+}
+
+.dinoai-audit-setup-step-marker .dashicons {
+	width: 16px;
+	height: 16px;
+	font-size: 16px;
+	line-height: 1;
+}
+
+.dinoai-audit-setup-step-body {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 12px;
+	min-height: 100%;
+	padding-right: 28px;
+}
+
+.dinoai-audit-setup-step-icon {
+	width: 36px;
+	height: 36px;
+	display: block;
+	background: none;
+	border-radius: 0;
+	color: #1a8960;
+	font-size: 36px;
+	line-height: 1;
+}
+
+.dinoai-audit-setup-step-copy {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.dinoai-audit-setup-step-copy h3 {
+	margin: 0 0 6px;
+	font-size: 15px;
+	font-weight: 650;
+	line-height: 1.35;
+	color: #1a2e26;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+}
+
+.dinoai-audit-setup-step-copy p {
+	margin: 0;
+	font-size: 13px;
+	line-height: 1.5;
+	color: #4d655a;
+}
+
+.dinoai-audit-setup-step-status {
+	display: inline-flex;
+	align-items: center;
+	padding: 2px 8px;
+	border-radius: 999px;
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: 0.02em;
+	text-transform: uppercase;
+	background: #d7ebe2;
+	color: #146348;
+}
+
+.dinoai-audit-setup-step-status.is-next {
+	background: rgba(26, 137, 96, 0.12);
+	color: #1a8960;
+}
+
+.notice.dinoai-audit-setup-wizard a.dinoai-audit-setup-step-cta.wpdino-btn,
+.dinoai-audit-setup-step-cta.wpdino-btn {
+	margin-top: auto;
+	padding: 10px 14px;
+	font-size: 13px;
+	font-weight: 600;
+	gap: 6px;
+	width: 100%;
+	justify-content: center;
+	border-radius: 8px;
+	box-sizing: border-box;
+	text-decoration: none !important;
+	box-shadow: none;
+}
+
+.notice.dinoai-audit-setup-wizard a.dinoai-audit-setup-step-cta.wpdino-btn-primary,
+.dinoai-audit-setup-step-cta.wpdino-btn-primary {
+	background: #1a8960;
+	border: 1px solid #1a8960;
+	color: #fff !important;
+}
+
+.notice.dinoai-audit-setup-wizard a.dinoai-audit-setup-step-cta.wpdino-btn-primary:hover,
+.notice.dinoai-audit-setup-wizard a.dinoai-audit-setup-step-cta.wpdino-btn-primary:focus,
+.dinoai-audit-setup-step-cta.wpdino-btn-primary:hover,
+.dinoai-audit-setup-step-cta.wpdino-btn-primary:focus {
+	background: #0e593d;
+	border-color: #0e593d;
+	color: #fff !important;
+	text-decoration: none !important;
+}
+
+.notice.dinoai-audit-setup-wizard a.dinoai-audit-setup-step-cta.wpdino-btn-secondary,
+.dinoai-audit-setup-step-cta.wpdino-btn-secondary {
+	border: 1px solid rgba(26, 137, 96, 0.28);
+	background: #fff;
+	color: #1a8960 !important;
+}
+
+.notice.dinoai-audit-setup-wizard a.dinoai-audit-setup-step-cta.wpdino-btn-secondary:hover,
+.notice.dinoai-audit-setup-wizard a.dinoai-audit-setup-step-cta.wpdino-btn-secondary:focus,
+.dinoai-audit-setup-step-cta.wpdino-btn-secondary:hover,
+.dinoai-audit-setup-step-cta.wpdino-btn-secondary:focus {
+	background: #1a8960;
+	border-color: #1a8960;
+	color: #fff !important;
+	text-decoration: none !important;
+}
+
+.dinoai-audit-setup-step-cta .dashicons {
+	width: 16px;
+	height: 16px;
+	font-size: 16px;
+	line-height: 1;
+	margin: 0;
+	text-decoration: none;
+}
+
+.dinoai-audit-setup-step-done-label {
+	margin-top: auto;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	height: 36px;
+	border-radius: 50%;
+	background: rgba(26, 137, 96, 0.12);
+	color: #1a8960;
+}
+
+.dinoai-audit-setup-step-done-label .dashicons {
+	width: 20px;
+	height: 20px;
+	font-size: 20px;
+	line-height: 1;
+}
+
+.dinoai-audit-setup-footer {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px 20px;
+	padding: 16px 32px 20px;
+	border-top: 1px solid #eef4f1;
+	background: #fafcfb;
+}
+
+.dinoai-audit-setup-footer p {
+	margin: 0;
+	flex: 1 1 240px;
+	font-size: 13px;
+	line-height: 1.5;
+	color: #5a7267;
+}
+
+.notice.dinoai-audit-setup-wizard a.dinoai-audit-setup-dismiss,
+.dinoai-audit-setup-dismiss {
+	flex-shrink: 0;
+	font-size: 13px;
+	font-weight: 600;
+	color: #5a7267 !important;
+	text-decoration: none !important;
+	padding: 8px 4px;
+	border-radius: 4px;
+	transition: color 160ms ease;
+	box-shadow: none;
+}
+
+.notice.dinoai-audit-setup-wizard a.dinoai-audit-setup-dismiss:hover,
+.notice.dinoai-audit-setup-wizard a.dinoai-audit-setup-dismiss:focus,
+.dinoai-audit-setup-dismiss:hover,
+.dinoai-audit-setup-dismiss:focus {
+	color: #1a8960 !important;
+	text-decoration: none !important;
+	outline: none;
+}
+
+.dinoai-audit-setup-dismiss:focus-visible {
+	outline: 2px solid #1a8960;
+	outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.dinoai-audit-setup-progress-fill,
+	.dinoai-audit-setup-step,
+	.dinoai-audit-setup-dismiss {
+		transition: none;
+	}
+}
+
+@media (max-width: 1100px) {
+	.dinoai-audit-setup-steps {
+		grid-template-columns: 1fr;
+		padding: 12px 16px;
+	}
+
+	.dinoai-audit-setup-step-body {
+		flex-direction: row;
+		flex-wrap: wrap;
+		align-items: center;
+		padding-right: 36px;
+	}
+
+	.dinoai-audit-setup-step-copy {
+		flex: 1 1 180px;
+	}
+
+	.dinoai-audit-setup-step-cta.wpdino-btn {
+		width: auto;
+		margin-left: auto;
+	}
+
+	.dinoai-audit-setup-hero,
+	.dinoai-audit-setup-footer {
+		padding-left: 20px;
+		padding-right: 20px;
+	}
+}
+
 /* Sidebar */
 .wpdino-sidebar .wpdino-card {
 	margin-bottom: 25px;
