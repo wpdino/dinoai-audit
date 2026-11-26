@@ -3,7 +3,7 @@ Contributors: wpdino, alexus450
 Donate link: https://paypal.me/dinostd/10usd
 Tags: ai, content, seo, accessibility, alt text
 Requires at least: 6.4
-Tested up to: 7.1
+Tested up to: 7.2
 Requires PHP: 7.4
 Stable tag: 1.1.0
 License: GPLv2 or later
@@ -21,6 +21,7 @@ DinoAI Audit is not a generic chatbot. It focuses on WordPress workflows:
 * Generate an SEO title, meta description, and keyword suggestions
 * Generate accessibility-focused image alt text
 * Run a basic site audit with a simple score and recommendations
+* Detect missing llms.txt files for AI agents (per llmstxt.org)
 
 = How it works =
 
@@ -86,7 +87,8 @@ The plugin is free. OpenAI API usage is billed to your OpenAI account. See https
 * Writing tone presets (Professional, Casual, Friendly, Concise) for content and SEO drafts.
 * Site-wide custom instructions for AI actions.
 * Copy SEO title and meta description into Yoast SEO or Rank Math with one click.
-* Setup wizard checklist: connect key, test connection, try Improve.
+* Setup wizard checklist after install: connect key, test connection, try Improve.
+* Site audit checks for llms.txt and optional llms-full.txt at your site root; findings link to the llmstxt.org specification.
 
 = 1.0.2 =
 * Minor fix.
@@ -105,7 +107,7 @@ The plugin is free. OpenAI API usage is billed to your OpenAI account. See https
 == Upgrade Notice ==
 
 = 1.1.0 =
-Tone presets, custom instructions, Yoast/Rank Math handoff, and a setup wizard.
+Writing style controls, Yoast/Rank Math handoff, setup wizard, and llms.txt audit findings for AI discovery.
 
 = 1.0.1 =
 Polish release: clearer AI errors, audit filters, remembered settings tab, and link fixes.

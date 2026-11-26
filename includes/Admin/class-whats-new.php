@@ -162,6 +162,7 @@ class Whats_New {
 			__( 'Site-wide custom instructions for AI actions.', 'dinoai-audit' ),
 			__( 'Copy SEO title and meta description to Yoast or Rank Math.', 'dinoai-audit' ),
 			__( 'Setup wizard: connect, test, then try Improve.', 'dinoai-audit' ),
+			__( 'Site audit checks for llms.txt and llms-full.txt (AI discovery).', 'dinoai-audit' ),
 		);
 	}
 }

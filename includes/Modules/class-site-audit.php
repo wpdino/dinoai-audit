@@ -9,6 +9,7 @@ namespace WPDINO\DinoAIAudit\Modules;
 
 defined( 'ABSPATH' ) || exit;
 
+use WPDINO\DinoAIAudit\LLM_Files;
 use WPDINO\DinoAIAudit\Loader;
 use WPDINO\DinoAIAudit\Plugin;
 
@@ -88,6 +89,7 @@ class Site_Audit {
 			array( $this, 'check_https' ),
 			array( $this, 'check_plugins' ),
 			array( $this, 'check_permalinks' ),
+			array( $this, 'check_llm_files' ),
 		);
 
 		/**
@@ -802,6 +804,64 @@ class Site_Audit {
 	}
 
 	/**
+	 * LLM discovery file (llms.txt).
+	 *
+	 * @since 1.1.0
+	 *
+	 * @return array<string, mixed>|null
+	 */
+	public function check_llm_files() {
+		$scan   = LLM_Files::scan();
+		$issues = array();
+
+		if ( empty( $scan['has_primary'] ) ) {
+			$primary_url = isset( $scan['llms_txt']['url'] ) ? $scan['llms_txt']['url'] : home_url( '/llms.txt' );
+			$full_url    = isset( $scan['llms_full_txt']['url'] ) ? $scan['llms_full_txt']['url'] : home_url( '/llms-full.txt' );
+
+			$issues[] = $this->issue(
+				'llms_txt_missing',
+				'seo',
+				'notice',
+				__( 'No llms.txt for AI discovery', 'dinoai-audit' ),
+				sprintf(
+					/* translators: 1: expected llms.txt URL, 2: expected llms-full.txt URL */
+					__( 'Per llmstxt.org, /llms.txt gives agents a short markdown overview of your site. Neither llms.txt nor llms-full.txt was detected at %1$s (optional extended file: %2$s).', 'dinoai-audit' ),
+					$primary_url,
+					$full_url
+				),
+				__( 'Add /llms.txt at your site root: H1 site name, a summary blockquote, then H2 sections with markdown links to key pages. llms-full.txt is an optional longer list you may add alongside it.', 'dinoai-audit' )
+			);
+		}
+
+		if ( ! empty( $scan['has_primary'] ) && empty( $scan['llms_full_txt']['available'] ) ) {
+			$full_url = isset( $scan['llms_full_txt']['url'] ) ? $scan['llms_full_txt']['url'] : home_url( '/llms-full.txt' );
+
+			$issues[] = $this->issue(
+				'llms_full_txt_missing',
+				'seo',
+				'notice',
+				__( 'No llms-full.txt file', 'dinoai-audit' ),
+				sprintf(
+					/* translators: %s: expected llms-full.txt URL */
+					__( 'llms.txt was found, but llms-full.txt was not at %s. The official spec covers llms.txt only; a full file is optional extra detail for agents.', 'dinoai-audit' ),
+					$full_url
+				),
+				__( 'Optionally publish llms-full.txt with the same structure as llms.txt but more links and “: notes” on each line, per the link-list format at llmstxt.org.', 'dinoai-audit' )
+			);
+		}
+
+		if ( empty( $issues ) ) {
+			return null;
+		}
+
+		if ( 1 === count( $issues ) ) {
+			return $issues[0];
+		}
+
+		return $issues;
+	}
+
+	/**
 	 * Permalink structure.
 	 *
 	 * @since 1.0.0
@@ -1012,6 +1072,72 @@ class Site_Audit {
 	 * @param array<int, array<string, mixed>> $issues Issues.
 	 * @return array<int, array<string, mixed>>
 	 */
+	/**
+	 * Action links shown under a finding’s solution (audit UI + REST).
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param array<string, mixed> $issue Finding.
+	 * @return array<int, array{url: string, label: string}>
+	 */
+	public static function finding_actions_for( array $issue ) {
+		$actions = array();
+
+		if ( ! empty( $issue['action_url'] ) && ! empty( $issue['action_label'] ) ) {
+			$actions[] = array(
+				'url'   => (string) $issue['action_url'],
+				'label' => (string) $issue['action_label'],
+			);
+		}
+
+		/**
+		 * Extra action links on an audit finding.
+		 *
+		 * @since 1.1.0
+		 *
+		 * @param array<int, array{url: string, label: string}> $actions Actions.
+		 * @param array<string, mixed>                          $issue   Finding.
+		 */
+		$actions = apply_filters( 'dinoai_audit_finding_actions', $actions, $issue );
+
+		$id = isset( $issue['id'] ) ? (string) $issue['id'] : '';
+
+		if ( ! in_array( $id, array( 'llms_txt_missing', 'llms_full_txt_missing' ), true ) ) {
+			return $actions;
+		}
+
+		$spec = array(
+			'url'   => LLM_Files::SPEC_URL,
+			'label' => __( 'Read the llms.txt specification', 'dinoai-audit' ),
+		);
+
+		$merged = array( $spec );
+		$seen   = array( LLM_Files::SPEC_URL => true );
+
+		foreach ( $actions as $action ) {
+			if ( empty( $action['url'] ) || empty( $action['label'] ) ) {
+				continue;
+			}
+
+			if ( isset( $seen[ $action['url'] ] ) ) {
+				continue;
+			}
+
+			$seen[ $action['url'] ] = true;
+			$merged[]               = $action;
+		}
+
+		return $merged;
+	}
+
+	/**
+	 * Attaches fix URLs and action lists to issues.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array<int, array<string, mixed>> $issues Issues.
+	 * @return array<int, array<string, mixed>>
+	 */
 	protected function attach_fixes( array $issues ) {
 		foreach ( $issues as $index => $issue ) {
 			if ( ! is_array( $issue ) ) {
@@ -1036,6 +1162,8 @@ class Site_Audit {
 				$issue['action_url']   = isset( $fix['url'] ) ? esc_url_raw( (string) $fix['url'] ) : '';
 				$issue['action_label'] = isset( $fix['label'] ) ? sanitize_text_field( (string) $fix['label'] ) : '';
 			}
+
+			$issue['actions'] = self::finding_actions_for( $issue );
 
 			$issues[ $index ] = $issue;
 		}
@@ -1167,10 +1295,26 @@ class Site_Audit {
 				'url'   => admin_url( 'options-permalink.php' ),
 				'label' => __( 'Open Settings → Permalinks', 'dinoai-audit' ),
 			),
+			'llms_txt_missing'             => array(
+				'url'   => LLM_Files::SPEC_URL,
+				'label' => __( 'Read the llms.txt specification', 'dinoai-audit' ),
+			),
+			'llms_full_txt_missing'        => array(
+				'url'   => LLM_Files::SPEC_URL,
+				'label' => __( 'Read the llms.txt specification', 'dinoai-audit' ),
+			),
 		);
 
 		if ( isset( $fixes[ $id ] ) ) {
-			return $fixes[ $id ];
+			/**
+			 * Filters the admin action link on an audit finding.
+			 *
+			 * @since 1.1.0
+			 *
+			 * @param array{url: string, label: string} $fix Fix URL and label.
+			 * @param string                            $id  Issue id.
+			 */
+			return apply_filters( 'dinoai_audit_fix_for', $fixes[ $id ], $id );
 		}
 
 		return array(

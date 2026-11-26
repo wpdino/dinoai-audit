@@ -94,11 +94,26 @@
 		}
 	}
 
+	function scrollSettingsAnchor() {
+		var hash = window.location.hash.replace('#', '');
+
+		if (!hash || $('#tab-' + hash).length) {
+			return;
+		}
+
+		var target = document.getElementById(hash);
+
+		if (target) {
+			target.scrollIntoView({ block: 'start' });
+		}
+	}
+
 	function initTabs() {
 		var tab = requestedTab();
 
 		if (tab) {
 			activateTab(tab);
+			scrollSettingsAnchor();
 		} else if (!$('.wpdino-tab-btn.active').length) {
 			$('.wpdino-tab-btn:first').addClass('active');
 			var first = $('.wpdino-tab-btn:first').data('tab');
@@ -489,13 +504,38 @@
 			return html;
 		}
 
+		function findingActions(issue) {
+			var actions = issue.actions && issue.actions.length ? issue.actions.slice() : [];
+
+			if (!actions.length && issue.action_url && issue.action_label) {
+				actions.push({ url: issue.action_url, label: issue.action_label });
+			}
+
+			return actions;
+		}
+
 		function renderFindingSolution(issue) {
 			var html = '<div class="dinoai-audit-finding-action"><span class="dashicons dashicons-lightbulb" aria-hidden="true"></span><div>';
 			html += '<span class="dinoai-audit-finding-action-label">' + escapeHtml(wp.i18n ? wp.i18n.__('Solution', 'dinoai-audit') : 'Solution') + '</span>';
 			html += '<p>' + escapeHtml(issue.recommendation || '') + '</p>';
 
-			if (issue.action_url && issue.action_label) {
-				html += '<p class="dinoai-audit-finding-action-cta"><a href="' + escapeHtml(issue.action_url) + '">' + escapeHtml(issue.action_label) + '</a></p>';
+			var actions = findingActions(issue);
+
+			if (actions.length) {
+				html += '<p class="dinoai-audit-finding-action-cta">';
+
+				actions.forEach(function (action, index) {
+					if (index > 0) {
+						html += '<span class="dinoai-audit-finding-action-sep" aria-hidden="true"> · </span>';
+					}
+
+					var external = action.url && action.url.indexOf('http') === 0;
+					var attrs = external ? ' target="_blank" rel="noopener noreferrer"' : '';
+
+					html += '<a href="' + escapeHtml(action.url) + '"' + attrs + '>' + escapeHtml(action.label) + '</a>';
+				});
+
+				html += '</p>';
 			}
 
 			html += '</div></div></div></article>';

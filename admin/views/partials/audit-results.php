@@ -10,6 +10,7 @@
 defined( 'ABSPATH' ) || exit;
 
 use WPDINO\DinoAIAudit\Admin\Admin_Layout;
+use WPDINO\DinoAIAudit\Modules\Site_Audit;
 
 $dinoai_audit_score_value   = isset( $dinoai_audit_score['score'] ) ? (int) $dinoai_audit_score['score'] : 0;
 $dinoai_audit_band          = Admin_Layout::score_band( $dinoai_audit_score_value );
@@ -172,12 +173,18 @@ usort(
 									<span class="dinoai-audit-finding-action-label"><?php esc_html_e( 'Solution', 'dinoai-audit' ); ?></span>
 									<p><?php echo esc_html( $dinoai_audit_issue['recommendation'] ); ?></p>
 									<?php
-									$dinoai_audit_action_url   = isset( $dinoai_audit_issue['action_url'] ) ? (string) $dinoai_audit_issue['action_url'] : '';
-									$dinoai_audit_action_label = isset( $dinoai_audit_issue['action_label'] ) ? (string) $dinoai_audit_issue['action_label'] : '';
+									$dinoai_audit_actions = isset( $dinoai_audit_issue['actions'] ) && is_array( $dinoai_audit_issue['actions'] )
+										? $dinoai_audit_issue['actions']
+										: Site_Audit::finding_actions_for( $dinoai_audit_issue );
 									?>
-									<?php if ( '' !== $dinoai_audit_action_url && '' !== $dinoai_audit_action_label ) : ?>
+									<?php if ( ! empty( $dinoai_audit_actions ) ) : ?>
 										<p class="dinoai-audit-finding-action-cta">
-											<a href="<?php echo esc_url( $dinoai_audit_action_url ); ?>"><?php echo esc_html( $dinoai_audit_action_label ); ?></a>
+											<?php foreach ( $dinoai_audit_actions as $dinoai_audit_action_index => $dinoai_audit_action ) : ?>
+												<?php if ( $dinoai_audit_action_index > 0 ) : ?>
+													<span class="dinoai-audit-finding-action-sep" aria-hidden="true"> · </span>
+												<?php endif; ?>
+												<a href="<?php echo esc_url( $dinoai_audit_action['url'] ); ?>"<?php echo 0 === strpos( $dinoai_audit_action['url'], 'http' ) ? ' target="_blank" rel="noopener noreferrer"' : ''; ?>><?php echo esc_html( $dinoai_audit_action['label'] ); ?></a>
+											<?php endforeach; ?>
 										</p>
 									<?php endif; ?>
 								</div>
