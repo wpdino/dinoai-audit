@@ -5,7 +5,7 @@ Tags: ai, content, seo, accessibility, alt text
 Requires at least: 6.4
 Tested up to: 7.2
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -82,6 +82,10 @@ The plugin is free. OpenAI API usage is billed to your OpenAI account. See https
 3. Basic site audit score and recommendations.
 
 == Changelog ==
+
+= 1.1.1 =
+* Site audit checks for llms.txt and optional llms-full.txt at your site root; findings link to the llmstxt.org specification.
+* Compatibility WordPress version 7.2
 
 = 1.1.0 =
 * Writing tone presets (Professional, Casual, Friendly, Concise) for content and SEO drafts.
